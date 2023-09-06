@@ -1,0 +1,18 @@
+<html>
+    <head>
+        <title>
+            <p>Success Page</p>
+        </title>
+    </head>
+    <body>
+        <div>
+        {% if data['lastname'] %}
+        <h1>Your Registration is Successfull , {{ data['lastname'] }}!</h1>
+        {% endif %}
+        <div>
+        <div>
+            
+        </div>
+        <p style="text-align:center;"><a class="center" href="{{url_for('login')}}">Login Here</a></p>
+    </body>
+</html>
