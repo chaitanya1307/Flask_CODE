@@ -1,38 +1,40 @@
-<html>  
-
-   <body align="center">  
-
-       <h3>Register the customer, fill the following form.</h3>  
-
-      <form action = "http://localhost:5000/register" method = "POST" id="register-form">  
-
-         
-
-         <p>LastName <input type = "text" name="lastname" placeholder="lastname" required/></p>  
-
-         <p>FirstName <input type = "text" name="firstname" placeholder="firstname" required/></p>  
-
-         <p>Email <input type ="email" name="email" placeholder="user@email.com" required/></p>
-
-         <p>Mobile <input type = "text" name="mobile" placeholder="123456789" maxlength="9" required /></p>
-
-         <p>City <input type = "text" name="city" required/></p>
-
-         <p>Password <input type = "password" name = "password" required /></p>
-         
-         <input type="hidden" id="otp" name="otp" value="verify">
-
-         <br>
-         <p class="bottom">Already have an account?  <a class="bottom" href="{{url_for('login')}}"> Sign In here</a></p>
-         <p><input type = "submit" value = "register" /></p> 
-         <div>
-         {% if message  %}
-        <h1> {{message}}!</h1>
-         {% endif %}
-         <div>
-         
-      </form>  
-
-   </body>  
-
-</html>  
+<html>
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title aling="center">Admin Registration Form</title>
+   </head>
+   <body align="center">
+      <div class="container">
+         <h2>Admin Registration </h2>
+         <form action="{{ url_for('register') }}" method="post">
+            {% if message is defined and message %}
+            <div class="alert alert-warning"> <strong> {{ message }} </strong></div>
+            {% endif %}
+            <br>
+            <div class="form-group">
+               <input type="hidden" class="form-control" name="register">
+            </div>
+            <br>
+            <div class="form-group">
+               username: <input type="text" class="form-control" id="username" name="username" placeholder="Enter name" name="username">
+            </div>
+            <br>
+            <div class="form-group">
+               Email: <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" name="email">
+            </div>
+            <br>
+            <div class="form-group">
+               Phone number: <input type="number" class="form-control" pattern="\d{1,5}" id="phonenum" name="phonenum" placeholder="Enter password" name="pswd">
+            </div>
+            <br>
+            <div class="form-group">
+               Password: <input type="password" class="form-control" pattern="[A-Za-z0-9]{8,16}" id="password" name="password" placeholder="Enter password" name="pswd">
+            </div>
+            <br>
+            <button type="submit" class="btn btn-primary">Register</button>
+            <p class="bottom">Already have an account? <a class="bottom" href="{{url_for('login')}}"> Login here</a></p>
+         </form>
+      </div>
+   </body>
+</html>

@@ -87,18 +87,22 @@ def login():
 
 # 	return render_template("profile.html",rows=rows)
 
+user = {"username": "abc"}
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
-	if request.method == 'POST':
-		username = request.form.get('username')
+	if (request.method == 'POST'):
+		username = request.form['username']
 		print(username)
-		connection = db_connection()
-		connection_cursor = connection.cursor()
-		query=f"select * from Email WHERE username='{username}';"
-		connection_cursor.execute(query)
-		rows=connection_cursor.fetchall()
-		print(rows)
-		return render_template("profile.html",rows=rows)
+		# connection = db_connection()
+		# connection_cursor = connection.cursor()
+		if username == user['username']:
+			session['user'] = username
+			connection = db_connection()
+			connection_cursor = connection.cursor()
+			connection_cursor.execute("select * from Email")
+			rows=connection_cursor.fetchall()
+			print(rows)
+			return render_template("profile.html",rows=rows)
 	
 
 @app.route('/register', methods=['GET', 'POST'])

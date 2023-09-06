@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>List</title>
+    </head>
+    <body align="center" bgcolor="lightgreen">
+        <form action="/profile" method="POST">
+        <h1>user profile</h1>
+        <table border="5" align="center" >
+            <thead>
+                <td>personid</td>
+                <td>username</td>
+                <td>email</td>
+                <td>phonenum</td>
+                
+            </thead>
+        {% for row in rows %}
+            <tr> 
+               <td>{{row["personid"]}}</td> 
+               <td>{{row["username"]}}</td>  
+               <td>{{row["email"]}}</td>  
+               <td>{{row["phonenum"]}}</td>
+            
+            </tr>
+        {% endfor %}
+        </table>
+        <br/>
+        <br/>
+        <!-- <h3><a href="/">Go back to home_page</a></h3> -->
+       </form>
+    </body>
+</html>
