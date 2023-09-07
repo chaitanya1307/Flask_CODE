@@ -5,6 +5,7 @@ import pymysql
 
 app=Flask(__name__)
 mail = Mail(app)
+app.secret_key = 'sai.chaitu1307@gmail.com'
 
 app.config["MAIL_SERVER"]='smtp.gmail.com'  
 app.config["MAIL_PORT"] = 465     
@@ -48,12 +49,7 @@ def validate_otp(email, otp):
 			return False
 		
 		
-	#Open Connetion
-	#Open Cursor
-	# SELECT * FROM users WHERE email="email" and otp="otp"
-	# return True/False
-	# return True
-
+	
 @app.route('/', methods=['GET','POST'])
 def login():
 	if request.method == 'GET':
@@ -65,44 +61,41 @@ def login():
 		connection = db_connection()
 		connection_cursor = connection.cursor()
 		connection_cursor.execute(query)
-		result = connection_cursor.fetchall()
-		print(result)
-		if len(result)>0:
-			message="login success"
+		user = connection_cursor.fetchone()
+		print("===================================================")
+		print(user)
+		if len(user)>0:
+			if user['username']==username and user['passwrd']==password:
+				session['user_id'] = user['personid']
+				print("--------------------")
+				print(session['user_id'])
+				return redirect(url_for('profile'))
 			
-			return redirect(url_for('profile'))
-			#message="login success"
 			
-		elif len(result)==0:
+		elif len(user)==0:
 			message="user not found"
 		return render_template('login.html',message=message)
-	
-# @app.route('/profile')
-# def profile():
-# 	connection = db_connection()
-# 	connection_cursor = connection.cursor()
-# 	connection_cursor.execute("select * from Email")
-# 	rows=connection_cursor.fetchall()
-# 	print(rows)
-
-# 	return render_template("profile.html",rows=rows)
-
-user = {"username": "abc"}
-@app.route('/profile', methods=['GET', 'POST'])
+		
+	#return render_template('login.html')
+		
+		
+		
+@app.route('/profile')
 def profile():
-	if (request.method == 'POST'):
-		username = request.form['username']
-		print(username)
-		# connection = db_connection()
-		# connection_cursor = connection.cursor()
-		if username == user['username']:
-			session['user'] = username
-			connection = db_connection()
-			connection_cursor = connection.cursor()
-			connection_cursor.execute("select * from Email")
-			rows=connection_cursor.fetchall()
-			print(rows)
-			return render_template("profile.html",rows=rows)
+	if 'user_id' in session:
+		connection = db_connection()
+		connection_cursor = connection.cursor()
+		user_id = session['user_id']
+		query=f"SELECT * FROM Email WHERE personid = {user_id}"
+		connection_cursor.execute(query)
+		users=connection_cursor.fetchone()
+		print(users)
+	
+		return render_template("profile.html",users=users)
+		#if user:
+			#return f"welcome, {user['username']} yours mail : {user['email']} and your phonenumber : {user['phonenum']}"
+		
+	        #return render_template("profile.html")
 	
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -154,12 +147,13 @@ def register():
 			else:
 				message = "Please enter an email address"
 			return render_template('register.html')
+		
+@app.route('/logout')
+def logout():
+    session.pop('user_id')
+    return redirect(url_for('login'))
 
-# @app.route('/validate', methods=['POST'])
-# def validate():
-# 	user_otp=request.form['otp']
-# 	if otp==int(user_otp):
-# 		return render_template('register.html')
+
 
 if __name__=="__main__":
 	app.run(debug= True)

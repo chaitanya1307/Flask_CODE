@@ -4,7 +4,7 @@
         <title>List</title>
     </head>
     <body align="center" bgcolor="lightgreen">
-        <form action="/profile" method="POST">
+        <form action="/profile">
         <h1>user profile</h1>
         <table border="5" align="center" >
             <thead>
@@ -14,19 +14,20 @@
                 <td>phonenum</td>
                 
             </thead>
-        {% for row in rows %}
+        {% if users is defined and users %}
             <tr> 
-               <td>{{row["personid"]}}</td> 
-               <td>{{row["username"]}}</td>  
-               <td>{{row["email"]}}</td>  
-               <td>{{row["phonenum"]}}</td>
+               <td>{{ users["personid"] }}</td> 
+               <td>{{ users["username"] }}</td>  
+               <td>{{ users["email"] }}</td>  
+               <td>{{ users["phonenum"] }}</td>
             
             </tr>
-        {% endfor %}
+        {% endif %}
         </table>
         <br/>
         <br/>
         <!-- <h3><a href="/">Go back to home_page</a></h3> -->
+        <input type="submit" class="btn" value="logout"></br></br>
        </form>
     </body>
 </html>
