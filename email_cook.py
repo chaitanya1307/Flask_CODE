@@ -92,6 +92,9 @@ def profile():
 		print(users)
 	
 		return render_template("profile.html",users=users)
+	else:
+		message="You must be logged in"
+		return render_template('login.html',message=message)
 		#if user:
 			#return f"welcome, {user['username']} yours mail : {user['email']} and your phonenumber : {user['phonenum']}"
 		
