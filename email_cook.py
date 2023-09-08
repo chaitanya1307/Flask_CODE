@@ -53,7 +53,10 @@ def validate_otp(email, otp):
 @app.route('/', methods=['GET','POST'])
 def login():
 	if request.method == 'GET':
-		return render_template('login.html',message="")
+		if 'user_id' in session:
+			return redirect(url_for('profile'))
+		else:
+			return render_template('login.html',message="")
 	elif request.method == 'POST':
 		username = request.form['username']
 		password = request.form['password']
@@ -64,7 +67,7 @@ def login():
 		user = connection_cursor.fetchone()
 		print("===================================================")
 		print(user)
-		if len(user)>0:
+		if user is not None:
 			if user['username']==username and user['passwrd']==password:
 				session['user_id'] = user['personid']
 				print("--------------------")
@@ -72,9 +75,9 @@ def login():
 				return redirect(url_for('profile'))
 			
 			
-		elif len(user)==0:
+		else:
 			message="user not found"
-		return render_template('login.html',message=message)
+			return render_template('login.html',message=message)
 		
 	#return render_template('login.html')
 		
