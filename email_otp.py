@@ -5,6 +5,8 @@ import pymysql
 
 app=Flask(__name__)
 mail = Mail(app)
+app.secret_key = 'sai.chaitu1307@gmail.com'
+#app.config['UPLOAD_FOLDER'] = 'C:\Users\Minfy.DESKTOP-7I2JS0O\Documents\GitHub\Flask_CODE\UPLOAD_FOLDER'
 
 app.config["MAIL_SERVER"]='smtp.gmail.com'  
 app.config["MAIL_PORT"] = 465     
@@ -48,16 +50,14 @@ def validate_otp(email, otp):
 			return False
 		
 		
-	#Open Connetion
-	#Open Cursor
-	# SELECT * FROM users WHERE email="email" and otp="otp"
-	# return True/False
-	# return True
-
+	
 @app.route('/', methods=['GET','POST'])
 def login():
 	if request.method == 'GET':
-		return render_template('login.html',message="")
+		if 'user_id' in session:
+			return redirect(url_for('profile'))
+		else:
+			return render_template('login.html',message="")
 	elif request.method == 'POST':
 		username = request.form['username']
 		password = request.form['password']
@@ -65,40 +65,44 @@ def login():
 		connection = db_connection()
 		connection_cursor = connection.cursor()
 		connection_cursor.execute(query)
-		result = connection_cursor.fetchall()
-		print(result)
-		if len(result)>0:
-			message="login success"
+		user = connection_cursor.fetchone()
+		print("===================================================")
+		print(user)
+		if user is not None:
+			if user['username']==username and user['passwrd']==password:
+				session['user_id'] = user['personid']
+				print("--------------------")
+				print(session['user_id'])
+				return redirect(url_for('profile'))
 			
-			return redirect(url_for('profile'))
-			#message="login success"
 			
-		elif len(result)==0:
+		else:
 			message="user not found"
-		return render_template('login.html',message=message)
-	
-# @app.route('/profile')
-# def profile():
-# 	connection = db_connection()
-# 	connection_cursor = connection.cursor()
-# 	connection_cursor.execute("select * from Email")
-# 	rows=connection_cursor.fetchall()
-# 	print(rows)
-
-# 	return render_template("profile.html",rows=rows)
-
-@app.route('/profile', methods=['GET', 'POST'])
+			return render_template('login.html',message=message)
+		
+	#return render_template('login.html')
+		
+		
+		
+@app.route('/profile')
 def profile():
-	if request.method == 'POST':
-		username = request.form.get('username')
-		print(username)
+	if 'user_id' in session:
 		connection = db_connection()
 		connection_cursor = connection.cursor()
-		query=f"select * from Email WHERE username='{username}';"
+		user_id = session['user_id']
+		query=f"SELECT * FROM Email WHERE personid = {user_id}"
 		connection_cursor.execute(query)
-		rows=connection_cursor.fetchall()
-		print(rows)
-		return render_template("profile.html",rows=rows)
+		users=connection_cursor.fetchone()
+		print(users)
+	
+		return render_template("profile.html",users=users)
+	else:
+		message="You must be logged in"
+		return render_template('login.html',message=message)
+		#if user:
+			#return f"welcome, {user['username']} yours mail : {user['email']} and your phonenumber : {user['phonenum']}"
+		
+	        #return render_template("profile.html")
 	
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -150,12 +154,66 @@ def register():
 			else:
 				message = "Please enter an email address"
 			return render_template('register.html')
+		
+@app.route('/logout')
+def logout():
+    session.pop('user_id')
+    return redirect(url_for('login'))
 
-# @app.route('/validate', methods=['POST'])
-# def validate():
-# 	user_otp=request.form['otp']
-# 	if otp==int(user_otp):
-# 		return render_template('register.html')
+# @app.route('/upload', methods=['POST'])
+# def upload_file():
+#     if 'file' in request.files:
+#         file = request.files['file']
+#         if file and allowed_file(file.filename):
+#             filename = secure_filename(file.filename)
+#             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+#             file.save(file_path)
+
+            
+
+#             # You can save the file path to a user's profile or database if needed
+
+#             # For now, we'll just return a success message
+
+#             return "File uploaded successfully"
+
+#     return "No file uploaded"
+
+@app.route('/gallery')
+def gallery():
+	if 'user_id' in session:
+		return render_template('gallery.html')
 
 if __name__=="__main__":
 	app.run(debug= True)
+	# if 'file' in request.files:
+	# 	file = request.files['file']
+	# 	#filename = secure_filename(file.filename)
+	# 	#print(filename)
+	# 	file.save('C:\Users\Minfy.DESKTOP-7I2JS0O\Documents\GitHub\Flask_CODE\UPLOAD_FOLDER')
+	# 	return "file uploaded successfully"
+	# return "no file uploaded"
+
+# @app.route('/upload', methods=['POST'])
+# def upload_file():
+# 	if 'file' in request.files:
+# 		file = request.files['file']
+# 		#filename = secure_filename(file.filename)
+# 		#print(filename)
+# 		file.save('C:\Users\Minfy.DESKTOP-7I2JS0O\Documents\GitHub\Flask_CODE\UPLOAD_FOLDER')
+# 		return "file uploaded successfully"
+# 	return "no file uploaded"
+
+# @app.route('/')
+# def home():
+#     return render_template('upload_form.html')
+
+# ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+# def allowed_file(filename):
+#     return '.' in filename and \
+#            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# if __name__=="__main__":
+# 	app.run(debug= True)

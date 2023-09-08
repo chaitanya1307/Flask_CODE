@@ -6,6 +6,7 @@ import pymysql
 app=Flask(__name__)
 mail = Mail(app)
 app.secret_key = 'sai.chaitu1307@gmail.com'
+#app.config['UPLOAD_FOLDER'] = 'C:\Users\Minfy.DESKTOP-7I2JS0O\Documents\GitHub\Flask_CODE\UPLOAD_FOLDER'
 
 app.config["MAIL_SERVER"]='smtp.gmail.com'  
 app.config["MAIL_PORT"] = 465     
@@ -160,6 +161,16 @@ def logout():
     return redirect(url_for('login'))
 
 
+
+@app.route('/gallery' methods='POST','GET')
+def gallery():
+	if request.method == 'GET':
+		return render_template('gallery.html', images=images)
+	elif request.method == 'POST':
+		files = request.files.get('files', '')
+		for file in files:
+			file.save('C:\Users\Minfy.DESKTOP-7I2JS0O\Documents\GitHub\Flask_CODE\UPLOAD_FOLDER')
+			
 
 if __name__=="__main__":
 	app.run(debug= True)
