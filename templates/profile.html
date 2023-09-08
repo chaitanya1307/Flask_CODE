@@ -9,9 +9,10 @@ body {
 
 .flip-card {
   background-color: transparent;
-  width: 300px;
+  width: 400px;
   height: 300px;
   perspective: 1000px;
+  display: flex;
 }
 
 .flip-card-inner {
@@ -46,17 +47,57 @@ body {
   color: white;
   transform: rotateY(180deg);
 }
+
+.container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+}
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover:not(.active) {
+  background-color: #111;
+}
+
+.active {
+  background-color: #04AA6D;
 </style>
 </head>
-<body>
+<body align="center">
+<ul>
+  <li><a href="https://www.linkedin.com/in/sai-gulipilli-565254212">Linkdin</a></li>
+  <li><a href="https://www.python.org/">Python</a></li>
+  <li><a href="https://wynk.in/music">Music</a></li>
+  <li style="float:right"><a class="active" href="{{url_for('logout')}}">Logout</a></li>
+</ul>
 
 <h1>WELCOME USER</h1>
+<form action="/profile" >
 <h3>keep your courser on pic</h3>
-
+<div class="container">
 <div class="flip-card">
   <div class="flip-card-inner">
     <div class="flip-card-front">
-      <img src="C:\Users\Minfy.DESKTOP-7I2JS0O\Downloads\-61d5le.jpg" alt="Avatar" style="width:300px;height:300px;">
+      <img src="\static\-61d5le.jpg" alt="Img not found" style="width:300px;height:500px;">
     </div>
     <div class="flip-card-back">
        {% if users is defined and users %}
@@ -69,6 +110,11 @@ body {
     </div>
   </div>
 </div>
+</div>
+</form>
+
+
+ 
 
 </body>
 </html>
