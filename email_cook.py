@@ -2,6 +2,8 @@ from flask import *
 from flask_mail import *  
 from random import *
 import pymysql
+import os
+from werkzeug.utils import secure_filename
 
 app=Flask(__name__)
 mail = Mail(app)
@@ -160,16 +162,58 @@ def logout():
     session.pop('user_id')
     return redirect(url_for('login'))
 
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/gallery' methods='POST','GET')
+@app.route('/gallery', methods=['POST','GET'])
 def gallery():
 	if request.method == 'GET':
-		return render_template('gallery.html', images=images)
-	elif request.method == 'POST':
-		files = request.files.get('files', '')
-		for file in files:
-			file.save('C:\Users\Minfy.DESKTOP-7I2JS0O\Documents\GitHub\Flask_CODE\UPLOAD_FOLDER')
+		if 'user_id'in session:
+			user_id=session.get('user_id')
+			connection = db_connection()
+			connection_cursor = connection.cursor()
+			query = f" SELECT  user_id,filename from pic_info  WHERE user_id='{user_id}';"
+			print(query)
+			connection_cursor.execute(query)
+			images = connection_cursor.fetchall()
+			print(f"Total images information ---->{images}")
+			connection_cursor.close()
+			connection.close()
+		return render_template('gallery.html',images=images)
+	if request.method == 'POST':
+		if 'user_id' in session and 'file' in request.files:
+			file=request.files['file']
+			print(file)
+			user_id=session['user_id']
+			print(user_id)
+			path = os.getcwd()
+			print(f"path----->{path}")
+			UPLOAD_FOLDER = os.path.join(path, 'uploads')
+			
+			if file and allowed_file(file.filename):
+						filename = secure_filename(file.filename)
+						# for file in filename:
+						print(f"actual filename------>{filename}")
+						os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
+						app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+						file.save(os.path.join(f"{app.config['UPLOAD_FOLDER']}/{user_id}", file.filename))
+						print("-----------------------------------")
+						connection = db_connection()
+						connection_cursor = connection.cursor()
+						query = f"INSERT INTO pic_info (user_id,filename) VALUE ('{user_id}', '{filename}');"
+						print(query)
+						connection_cursor.execute(query)
+						connection.commit()
+						connection_cursor.close()
+						connection.close()
+				
+			return render_template('gallery.html')
+		
+		
 			
 
 if __name__=="__main__":

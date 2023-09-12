@@ -1,13 +1,25 @@
 <!DOCTYPE html>
 <html>
 <body>
-    <h2> upload image </h2>
-<form action = "/gallery" method="POST" enctype = "multipart/form-data">
-   <input type = "file" name = "files" id="files" /><br>
-   <br>
-   <br>
-   <input type = "submit"/>
-</form>
-
-</body>
-</html>
+    <div class="container">
+        <h2>Image Gallery</h2>
+        <form action = "/gallery" method = "post" enctype="multipart/form-data">  
+           <input type="file" name="file" />  
+           <input type = "submit" value="Upload">  
+        </form>
+        <div class="row">
+           {% for image in images %}
+           <div class="col-md-4">
+              <div class="thumbnail">
+                 <a href="{{ image }}" target="_blank">
+                    <img src="uploads/2/saisignatr.jpg" alt="image not displayed" style="width:100%">
+                    <div class="caption">
+                    </div>
+                 </a>
+              </div>
+           </div>
+           {% endfor %}
+        </div>
+     </div>
+     </body>
+     </html>
