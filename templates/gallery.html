@@ -1,25 +1,32 @@
 <!DOCTYPE html>
 <html>
-<body>
-    <div class="container">
-        <h2>Image Gallery</h2>
-        <form action = "/gallery" method = "post" enctype="multipart/form-data">  
-           <input type="file" name="file" />  
-           <input type = "submit" value="Upload">  
-        </form>
-        <div class="row">
-           {% for image in images %}
-           <div class="col-md-4">
-              <div class="thumbnail">
-                 <a href="/uploads/{{image['user_id']}}/{{image['filename']}}" target="_blank">
-                    <img src="/uploads/{{image['user_id']}}/{{image['filename']}}" alt="image not displayed" style="width:100%">
-                    <div class="caption">
-                    </div>
-                 </a>
-              </div>
-           </div>
-           {% endfor %}
-        </div>
-     </div>
-     </body>
-     </html>
+   <head>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+   </head>
+   <body>
+      <div class="container">
+         <h2>Image Gallery</h2>
+         <form action="/gallery" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" />
+            <input type="submit" value="Upload">
+         </form>
+         <div class="row">
+            {% for image in images %}
+            <div class="col-md-4">
+               <div class="thumbnail">
+                  <a href="/uploads/{{ image['user_id'] }}/{{ image['filename'] }}" target="_blank">
+                     <img src="/uploads/{{ image['user_id'] }}/{{ image['filename'] }}" alt="image not displayed" style="width:30%">
+                     <!-- <form method="POST" action="{{ url_for('delete_image', image_id=image['id']) }}" style="display: inline;"> -->
+                        <button type="submit" style="font-size:24px"><i class="fa fa-trash-o"></i></button>
+                     </form>
+                     <br>
+                     <br>
+                     <div class="caption"></div>
+                  </a>
+               </div>
+            </div>
+            {% endfor %}
+         </div>
+      </div>
+   </body>
+</html>
