@@ -213,6 +213,19 @@ def gallery():
 				
 			return render_template('gallery.html')
 		
+@app.route('/uploads/<user_id>/<filename>',methods=["GET"])
+
+def uploads(user_id, filename):
+    session_user_id=session.get('user_id')
+    print(type(session_user_id))
+    if session_user_id is not None:
+         print(type(user_id ))
+         if str(session_user_id)== str(user_id):
+           return send_file(f"uploads/{user_id}/{filename}")
+         else:
+           return "Forbidden", 403
+    return "Forbidden", 403
+		
 		
 			
 

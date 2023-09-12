@@ -11,8 +11,8 @@
            {% for image in images %}
            <div class="col-md-4">
               <div class="thumbnail">
-                 <a href="{{ image }}" target="_blank">
-                    <img src="uploads/2/saisignatr.jpg" alt="image not displayed" style="width:100%">
+                 <a href="/uploads/{{image['user_id']}}/{{image['filename']}}" target="_blank">
+                    <img src="/uploads/{{image['user_id']}}/{{image['filename']}}" alt="image not displayed" style="width:100%">
                     <div class="caption">
                     </div>
                  </a>
