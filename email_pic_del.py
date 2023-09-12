@@ -227,30 +227,27 @@ def uploads(user_id, filename):
     return "Forbidden", 403
 
 
-@app.route('/delete/<int:image_id>', methods=['POST'])
-def delete_image(image_id):
-	if 'user_id' in session:
-		user_id = session['user_id']
-		connection = db_connection()
-		connection_cursor = connection.cursor()
-		query = f"SELECT user_id, filename FROM pic_info WHERE id = {image_id};"
-		connection_cursor.execute(query)
-		image_data = connection_cursor.fetchone()
-		print(f"this is image data----------{image_data}")
-		if image_data and image_data['user_id'] == user_id:
-			query = f"DELETE FROM pic_info WHERE id = {image_id};"
+@app.route('/delete/<int:user_id>/<filename>', methods=['POST'])
+def delete_image(user_id,filename):
+	session_user_id = session.get('user_id')
+	if session_user_id is not None and str(session_user_id) == str(user_id):
+		print(f"it is in deleting with userid {session_user_id}")
+		path_to_delete = os.path.join('uploads', str(user_id), filename)
+		print(f"path_to_delete---->{path_to_delete}")
+		if os.path.exists(path_to_delete):
+			os.remove(path_to_delete)
+			print(f"After delete--->{path_to_delete}")
+			connection = db_connection()
+			connection_cursor = connection.cursor()
+			query = f"DELETE FROM pic_info WHERE user_id='{user_id}' AND filename='{filename}';"
 			connection_cursor.execute(query)
 			connection.commit()
-			image_path = os.path.join(app.config['UPLOAD_FOLDER'], str(user_id), image_data['filename'])
-			if os.path.exists(image_path):
-				os.remove(image_path)
-				connection_cursor.close()
-				connection.close()
-				return redirect(url_for('gallery'))
+			connection_cursor.close()
+			connection.close()
+			return redirect(url_for('gallery'))
 		else:
 			return "Forbidden", 403
-	else:
-		return "Forbidden", 403
+	
 		
 			
 
