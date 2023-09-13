@@ -185,32 +185,31 @@ def gallery():
 			connection.close()
 		return render_template('gallery.html',images=images)
 	if request.method == 'POST':
-		if 'user_id' in session and 'file' in request.files:
-			file=request.files['file']
-			print(file)
+		if 'user_id' in session and 'files' in request.files:
+			files=request.files.getlist('files')
+			print("--------------------------------------------")
+			print(type(files))
 			user_id=session['user_id']
 			print(user_id)
 			path = os.getcwd()
 			print(f"path----->{path}")
 			UPLOAD_FOLDER = os.path.join(path, 'uploads')
-			
-			if file and allowed_file(file.filename):
-						filename = secure_filename(file.filename)
-						# for file in filename:
-						print(f"actual filename------>{filename}")
-						os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
-						app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-						file.save(os.path.join(f"{app.config['UPLOAD_FOLDER']}/{user_id}", file.filename))
-						print("-----------------------------------")
-						connection = db_connection()
-						connection_cursor = connection.cursor()
-						query = f"INSERT INTO pic_info (user_id,filename) VALUE ('{user_id}', '{filename}');"
-						print(query)
-						connection_cursor.execute(query)
-						connection.commit()
-						connection_cursor.close()
-						connection.close()
-				
+			for file in files:
+				if file and allowed_file(file.filename):
+							filename = secure_filename(file.filename)
+							print(f"actual filename------>{filename}")
+							os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
+							app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+							file.save(os.path.join(f"{app.config['UPLOAD_FOLDER']}/{user_id}", file.filename))
+							print("-----------------------------------")
+							connection = db_connection()
+							connection_cursor = connection.cursor()
+							query = f"INSERT INTO pic_info (user_id,filename) VALUE ('{user_id}', '{filename}');"
+							print(query)
+							connection_cursor.execute(query)
+							connection.commit()
+							connection_cursor.close()
+							connection.close()
 			return render_template('gallery.html')
 		
 @app.route('/uploads/<user_id>/<filename>',methods=["GET"])
