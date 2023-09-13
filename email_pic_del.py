@@ -246,6 +246,7 @@ def delete_image(user_id,filename):
 			connection.close()
 			return redirect(url_for('gallery'))
 		else:
+			print("---------------------------------")
 			return "Forbidden", 403
 	
 		
