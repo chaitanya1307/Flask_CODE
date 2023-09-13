@@ -247,6 +247,38 @@ def delete_image(user_id,filename):
 		else:
 			print("---------------------------------")
 			return "Forbidden", 403
+		
+@app.route('/editprofile',methods=["POST","GET"])
+def editprofile():  
+            if 'user_id' in session:
+                user_id=session.get('user_id')
+                if request.method=='GET':
+                    connection = db_connection()
+                    connection_cursor = connection.cursor()
+                    query=f"SELECT * FROM Email WHERE personid ='{user_id}';"
+                    connection_cursor.execute(query)
+                    print(f"----------->{query}")
+                    user=connection_cursor.fetchone()
+                    connection.close()
+                    return render_template('editprofile.html',user=user)
+
+                if request.method=="POST":
+                    new_username=request.form['username']
+                    new_email=request.form['email']
+                    new_phonenum=request.form['phonenum']
+                    connection = db_connection()
+                    connection_cursor = connection.cursor()
+                    query=f"UPDATE Email SET username='{new_username}', email='{new_email}', phonenum='{new_phonenum}' WHERE personid='{user_id}';"
+                    connection_cursor.execute(query)
+                    print(query)
+                    connection.commit()
+                    connection_cursor.close()
+                    connection.close()
+                    return redirect(url_for('profile',user_id=user_id))
+
+           
+
+            return "forbidden"
 	
 		
 			
