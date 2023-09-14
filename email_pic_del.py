@@ -227,17 +227,15 @@ def gallery():
 
 @app.route('/uploads/<user_id>/<filename>',methods=["GET"])
 def uploads(user_id, filename):
-    session_user_id=session.get('user_id')
-    print(session_user_id)
-    if session_user_id is not None:
-        print(user_id )
-        if str(session_user_id)== str(user_id):
-            if filename.lower().endswith(('mp4')):
-                return render_template('videos.html',user_id=user_id,filename=filename)
-            elif filename.lower().endswith(('png', 'jpg', 'jpeg', 'gif')):
-                return send_file(f"uploads/{user_id}/{filename}")
-        else:
-            return "Forbidden", 403
+	session_user_id=session.get('user_id')
+	if session_user_id is not None:
+		print(user_id )
+		if filename.lower().endswith(('mp4')):
+			return send_file(f"uploads/{user_id}/{filename}")
+		elif filename.lower().endswith(('png', 'jpg', 'jpeg', 'gif')):
+			return send_file(f"uploads/{user_id}/{filename}")
+        # else:
+        #     return "Forbidden", 403
 
 
 @app.route('/videos', methods=['POST','GET'])
@@ -271,7 +269,7 @@ def videos():
 							print(f"actual filename------>{filename}")
 							os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
 							app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-							file.save(os.path.join(f"{app.config['UPLOAD_FOLDER']}/{user_id}", file.filename))
+							file.save(os.path.join(f"{app.config['UPLOAD_FOLDER']}/{user_id}",filename))
 							print("-----------------------------------")
 							connection = db_connection()
 							connection_cursor = connection.cursor()
