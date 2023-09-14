@@ -162,7 +162,7 @@ def logout():
     session.pop('user_id')
     return redirect(url_for('login'))
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif','webp'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif','webp','mp4'}
 
 def allowed_file(filename):
     return '.' in filename and \

@@ -6,7 +6,7 @@
       <!-- <div class="container"> -->
          <h2>Image Gallery</h2>
          <form action="/gallery" method="post" enctype="multipart/form-data">
-            <input type="file" name="files" multiple>
+            <input type="file" name="files" multiple required>
             <input type="submit" value="Upload">
          </form>
          <div class="row">
@@ -15,6 +15,9 @@
                <div class="thumbnail">
                   <a href="/uploads/{{ image['user_id'] }}/{{ image['filename'] }}" target="_blank">
                      <img src="/uploads/{{ image['user_id'] }}/{{ image['filename'] }}" alt="image not displayed" style="width:70%">
+                     <!-- <video autoplay="autoplay" controls="controls" preload="preload">
+                        <source src="/uploads/{{ image['user_id'] }}/{{ image['filename'] }}" type="video/mp4"></source>
+                      </video> -->
                      <form method="POST" action="/delete/{{image['user_id']}}/{{image['filename']}}" style="display: inline;">
                         <button type="submit" style="font-size:24px"><i class="fa fa-trash-o"></i></button>
                      </form>

@@ -162,7 +162,7 @@ def logout():
     session.pop('user_id')
     return redirect(url_for('login'))
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif','webp'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif','webp','mp4'}
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -210,20 +210,78 @@ def gallery():
 							connection.commit()
 							connection_cursor.close()
 							connection.close()
-			return render_template('gallery.html')
+			return redirect(url_for('gallery'))
 		
-@app.route('/uploads/<user_id>/<filename>',methods=["GET"])
+# @app.route('/uploads/<user_id>/<filename>',methods=["GET"])
 
+# def uploads(user_id, filename):
+#     session_user_id=session.get('user_id')
+#     print(type(session_user_id))
+#     if session_user_id is not None:
+#          print(type(user_id ))
+#          if str(session_user_id)== str(user_id):
+#            return send_file(f"uploads/{user_id}/{filename}")
+#          else:
+#            return "Forbidden", 403
+#     return "Forbidden", 403
+
+@app.route('/uploads/<user_id>/<filename>',methods=["GET"])
 def uploads(user_id, filename):
     session_user_id=session.get('user_id')
-    print(type(session_user_id))
+    print(session_user_id)
     if session_user_id is not None:
-         print(type(user_id ))
-         if str(session_user_id)== str(user_id):
-           return send_file(f"uploads/{user_id}/{filename}")
-         else:
-           return "Forbidden", 403
-    return "Forbidden", 403
+        print(user_id )
+        if str(session_user_id)== str(user_id):
+            if filename.lower().endswith(('mp4')):
+                return render_template('videos.html',user_id=user_id,filename=filename)
+            elif filename.lower().endswith(('png', 'jpg', 'jpeg', 'gif')):
+                return send_file(f"uploads/{user_id}/{filename}")
+        else:
+            return "Forbidden", 403
+
+
+@app.route('/videos', methods=['POST','GET'])
+def videos():
+	if request.method == 'GET':
+		if 'user_id'in session:
+			user_id=session.get('user_id')
+			connection = db_connection()
+			connection_cursor = connection.cursor()
+			query = f" SELECT  user_id,filename from video_info  WHERE user_id='{user_id}';"
+			print(query)
+			connection_cursor.execute(query)
+			videos = connection_cursor.fetchall()
+			print(f"Total videos information ---->{videos}")
+			connection_cursor.close()
+			connection.close()
+		return render_template('videos.html',videos=videos)
+	if request.method == 'POST':
+		if 'user_id' in session and 'files' in request.files:
+			files=request.files.getlist('files')
+			print("--------------------------------------------")
+			print(type(files))
+			user_id=session['user_id']
+			print(user_id)
+			path = os.getcwd()
+			print(f"path----->{path}")
+			UPLOAD_FOLDER = os.path.join(path, 'uploads')
+			for file in files:
+				if file and allowed_file(file.filename):
+							filename = secure_filename(file.filename)
+							print(f"actual filename------>{filename}")
+							os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
+							app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+							file.save(os.path.join(f"{app.config['UPLOAD_FOLDER']}/{user_id}", file.filename))
+							print("-----------------------------------")
+							connection = db_connection()
+							connection_cursor = connection.cursor()
+							query = f"INSERT INTO video_info (user_id,filename) VALUE ('{user_id}', '{filename}');"
+							print(query)
+							connection_cursor.execute(query)
+							connection.commit()
+							connection_cursor.close()
+							connection.close()
+			return redirect(url_for('videos'))
 
 
 @app.route('/delete/<int:user_id>/<filename>', methods=['POST'])
@@ -244,6 +302,29 @@ def delete_image(user_id,filename):
 			connection_cursor.close()
 			connection.close()
 			return redirect(url_for('gallery'))
+		else:
+			print("---------------------------------")
+			return "Forbidden", 403
+
+@app.route('/delete_video/<int:user_id>/<filename>', methods=['POST'])
+def delete_video(user_id,filename):
+	session_user_id = session.get('user_id')
+	if session_user_id is not None and str(session_user_id) == str(user_id):
+		print(f"it is in deleting with userid {session_user_id}")
+		path_to_delete = os.path.join('uploads', str(user_id), filename)
+		print(f"path_to_delete---->{path_to_delete}")
+		if os.path.exists(path_to_delete):
+			os.remove(path_to_delete)
+			print(f"After delete--->{path_to_delete}")
+			connection = db_connection()
+			connection_cursor = connection.cursor()
+			query2 = f"DELETE FROM video_info WHERE user_id='{user_id}' AND filename='{filename}';"
+			print("--------------")
+			connection_cursor.execute(query2)
+			connection.commit()
+			connection_cursor.close()
+			connection.close()
+			return redirect(url_for('videos'))
 		else:
 			print("---------------------------------")
 			return "Forbidden", 403
