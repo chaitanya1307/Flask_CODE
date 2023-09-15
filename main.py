@@ -3,6 +3,7 @@ from flask_mail import *
 from random import *
 from pytube import YouTube
 from pathlib import Path
+import urllib.request
 import pymysql
 import os
 import re
@@ -241,7 +242,7 @@ def videos():
 			videos = connection_cursor.fetchall()
 			print(f"Total videos information ---->{videos}")
 			connection_cursor.close()
-			connection.close()
+			connection.close() 
 		return render_template('videos.html',videos=videos)
 	if request.method == 'POST':
 		if 'user_id' in session and 'files' in request.files:
@@ -351,29 +352,43 @@ def editprofile():
 #     return render_template('download.html')
 
 @app.route("/download", methods=["GET","POST"])
-def downloadVideo():      
-    mesage = ''
-    errorType = 0
-    if request.method == 'POST' and 'video_url' in request.form:
-        youtubeUrl = request.form["video_url"]
-        if(youtubeUrl):validateVideoUrl = (r'(https?://)?(www\.)?''(youtube|youtu|youtube-nocookie)\.(com|be)/''(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
-        validVideoUrl = re.match(validateVideoUrl, youtubeUrl)
-        if validVideoUrl:
-                url = YouTube(youtubeUrl)
-                video = url.streams.get_highest_resolution()
-                downloadFolder = str(os.path.join(Path.home(), "Downloads"))
-                video.download(downloadFolder)
-                mesage = 'Video Downloaded Successfully!'
-                errorType = 1
-        else:
-                mesage = 'Enter Valid YouTube Video URL!'
-                errorType = 0
-    else:
-            mesage = 'Enter YouTube Video Url.'
-            errorType = 0            
-    return render_template('download.html', mesage = mesage, errorType = errorType)
-
-
+def download():      
+        mesage = ''
+        errorType = 0
+        if request.method == 'POST' and 'video_url' in request.form:
+            youtubeUrl = request.form["video_url"]
+            print(youtubeUrl)
+            if(youtubeUrl):
+                validateVideoUrl = (r'(https?://)?(www\.)?''(youtube|youtu|youtube-nocookie)\.(com|be)/''(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
+                validVideoUrl = re.match(validateVideoUrl, youtubeUrl)
+                if validVideoUrl:
+                    url = YouTube(youtubeUrl)
+                    video = url.streams.get_highest_resolution()
+                    user_id = session['user_id']
+                    filename = f"{session['user_id']}_{url.title}.mp4"
+                    path = os.getcwd()
+                    UPLOAD_FOLDER = os.path.join(path, 'uploads')
+                    os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
+                    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+                    downloadFolder = str(os.path.join(f"{app.config['UPLOAD_FOLDER']}/{user_id}"))
+                    video.download(downloadFolder, filename=filename)
+                    connection=db_connection()
+                    connection_cursor=connection.cursor()
+                    query = f"INSERT INTO video_info (user_id, filename) VALUES ('{user_id}', '{filename}');"
+                    connection_cursor.execute(query)
+                    connection.commit()
+                    connection_cursor.close()
+                    connection.close()
+                    mesage = 'Video Downloaded and Added to Your Profile Successfully!'
+                    errorType = 1
+                    return redirect(url_for('videos'))
+                else:
+                    mesage = 'Enter Valid YouTube Video URL!'
+                    errorType = 0        
+            else:
+                mesage='enter Youtube video url'
+                errorType=0
+        return render_template('download.html', mesage = mesage, errorType = errorType)
 
 
 		

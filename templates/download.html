@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+   {% include 'head.html' %}
+   <body>
+      {% include 'navigation.html' %}
+      <div class="container mt-3">
+        <!-- <h2>YouTube Video Downloader</h2> -->
+        <form action="/download" method="post">
+            {% if mesage is defined and mesage %}
+                {% if errorType is defined and errorType %}
+                    <div class="alert alert-success">{{ mesage }}</div>
+                {% else  %}
+                    <div class="alert alert-danger">{{ mesage }}</div>
+                {% endif %}
+            {% endif %}
+            <div class="mb-3 mt-3">
+                <label for="video_url">Enter YouTube Video Url:</label>
+                <input type="text" class="form-control" id="video_url" placeholder="Enter url" name="video_url">
+            </div>
+            <br>
+            <br>          
+            <button type="submit" class="btn btn-primary">Download</button>
+        </form>
+      </div>
+    <br><br>
+   </body>
+</html>
