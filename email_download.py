@@ -12,7 +12,6 @@ from werkzeug.utils import secure_filename
 app=Flask(__name__)
 mail = Mail(app)
 app.secret_key = 'sai.chaitu1307@gmail.com'
-#app.config['UPLOAD_FOLDER'] = 'C:\Users\Minfy.DESKTOP-7I2JS0O\Documents\GitHub\Flask_CODE\UPLOAD_FOLDER'
 
 app.config["MAIL_SERVER"]='smtp.gmail.com'  
 app.config["MAIL_PORT"] = 465     
@@ -55,7 +54,6 @@ def validate_otp(email, otp):
 		else:
 			return False
 		
-		
 	
 @app.route('/', methods=['GET','POST'])
 def login():
@@ -85,11 +83,7 @@ def login():
 		else:
 			message="user not found"
 			return render_template('login.html',message=message)
-		
-	#return render_template('login.html')
-		
-		
-		
+
 @app.route('/profile')
 def profile():
 	if 'user_id' in session:
@@ -105,12 +99,7 @@ def profile():
 	else:
 		message="You must be logged in"
 		return render_template('login.html',message=message)
-		#if user:
-			#return f"welcome, {user['username']} yours mail : {user['email']} and your phonenumber : {user['phonenum']}"
 		
-	        #return render_template("profile.html")
-	
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 		message=" "
@@ -132,7 +121,6 @@ def register():
 				password = request.form['password']
 				email = request.form['email']
 				username = request.form['username']
-				# validation=request.form['validation']
 				query= f"SELECT * from Email where email = '{email}';"
 				connection = db_connection()
 				connection_cursor = connection.cursor()
@@ -198,6 +186,7 @@ def gallery():
 			path = os.getcwd()
 			print(f"path----->{path}")
 			UPLOAD_FOLDER = os.path.join(path, 'uploads')
+			print(UPLOAD_FOLDER)
 			for file in files:
 				if file and allowed_file(file.filename):
 							filename = secure_filename(file.filename)
