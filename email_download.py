@@ -7,6 +7,7 @@ import urllib.request
 import pymysql
 import os
 import re
+import ipaddress
 from werkzeug.utils import secure_filename
 
 app=Flask(__name__)
@@ -385,9 +386,9 @@ def get_location():
     return render_template('location.html')
 
 @app.route('/iplocation', methods=["GET","POST"])
-def ip_location():
+def post_geolocation():
 	if request.method == 'GET':
-		return render_template('ip.html')
+		return render_template('index2.html')
 	elif request.method == 'POST':
 		ipaddress.ip_address(request.form['ip_address'])
 		req = requests.get('https://ipgeolocation.abstractapi.com/v1/?ip_address=' + request.form['ip_address'] + '&api_key=2470d093773e499ea714dc1c5c1c598e')
