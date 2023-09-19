@@ -186,13 +186,14 @@ def gallery():
 			path = os.getcwd()
 			print(f"path----->{path}")
 			UPLOAD_FOLDER = os.path.join(path, 'uploads')
-			print(UPLOAD_FOLDER)
+			print("this is upload folder --->" ,UPLOAD_FOLDER)
 			for file in files:
 				if file and allowed_file(file.filename):
 							filename = secure_filename(file.filename)
 							print(f"actual filename------>{filename}")
 							os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
 							app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+							print("+++++++", UPLOAD_FOLDER)
 							file.save(os.path.join(f"{app.config['UPLOAD_FOLDER']}/{user_id}", file.filename))
 							print("-----------------------------------")
 							connection = db_connection()
@@ -379,7 +380,20 @@ def download():
                 errorType=0
         return render_template('download.html', mesage = mesage, errorType = errorType)
 
+@app.route('/location')
+def get_location():
+    return render_template('location.html')
 
+@app.route('/iplocation', methods=["GET","POST"])
+def ip_location():
+	if request.method == 'GET':
+		return render_template('ip.html')
+	elif request.method == 'POST':
+		ipaddress.ip_address(request.form['ip_address'])
+		req = requests.get('https://ipgeolocation.abstractapi.com/v1/?ip_address=' + request.form['ip_address'] + '&api_key=2470d093773e499ea714dc1c5c1c598e')
+		return make_response(jsonify(req.json()))
+    
+    
 		
 			
 
