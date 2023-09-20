@@ -6,32 +6,93 @@
 
 <h1>WELCOME USER</h1>
 <form action="/profile" >
-<h3>keep your courser on pic</h3>
-<div class="container">
-<div class="flip-card">
-  <div class="flip-card-inner">
-    <div class="flip-card-front">
-      <img src="\static\mbappe.jpg" alt="Img not found" style="width:400px;height:300px;">
-    </div>
-    <div class="flip-card-back">
-       {% if users is defined and users %}
-  <h1>{{ users["username"] }}</h1>
-  <p>PersonID: {{ users["personid"] }}</p>
-  
-  <p>Email: {{ users["email"] }}</p>
-  <p>Mobile: {{ users["phonenum"] }}</p>
- {% endif %}
+  <div class="content">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card card-user">
+          <div class="image">
+            <img src="../static/img/damir-bosnjak.jpg" alt="...">
+          </div>
+          <div class="card-body">
+            <div class="author">
+              <a href="#">
+                <img class="avatar border-gray" src="../static/img/mike.jpg" alt="...">
+                <h2 class="title">{{ users["username"] }}</h2>
+              </a>
+              <p class="description">
+                @user
+              </p>
+            </div>
+          </div>
+          <div class="card-footer">
+            <hr>
+            <div class="button-container">
+              <div class="row">
+                {% if users is defined and users %}
+                
+                <p><strong>PersonID --- </strong> {{ users["personid"] }}</p>
+                
+                <p><strong>Email --- </strong> {{ users["email"] }}</p>
+                <p><strong>Mobile --- </strong> {{ users["phonenum"] }}</p>
+              
+               {% endif %}     
+               
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <!-- <form action="/editprofile" method="post" > -->
+      <div class="col-md-8">
+        <div class="card card-user">
+          <div class="card-header">
+            <h5 class="card-title">Edit Profile</h5>
+          </div>
+          <div class="card-body">
+            <form action="/editprofile" method="post" >
+              <div class="form-group">
+                <input type="hidden" class="form-control" name="user_id" value="{{users[user_id]}}">
+             </div>
+              <div class="row">
+                <div class="col-md-5 pr-1">
+                  <div class="form-group">
+                    <label>Company (disabled)</label>
+                    <input type="text" class="form-control" disabled="" placeholder="Company" value="Minfy Tech.">
+                  </div>
+                </div>
+                <br>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" class="form-control" name="username" placeholder="Username" value="{{ users['username'] }}"><br>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Email address</label>
+                    <input type="email" class="form-control" name="email" placeholder="Email" value="{{ users['email'] }}"><br>
+                  </div>
+                </div>
+              </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Phone number</label>
+                    <input type="number" class="form-control" name="phonenum" placeholder="number" value="{{ users['phonenum'] }}">
+                  </div>
+                </div>
+              </div>
+             
+              <div class="row">
+                <div class="update ml-auto mr-auto">
+                  <button type="submit" class="btn btn-primary btn-round">Update Profile</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
-</div>
-<br>
-<br>
-</form>
-
-  <h2>
-<marquee bgcolor="yellow">This user copyrights to &copy; {{ users["username"] }}</marquee>
-</h2>
-</form>
 </body>
 </html>

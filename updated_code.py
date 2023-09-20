@@ -339,9 +339,7 @@ def editprofile():
                     return redirect(url_for('profile',user_id=user_id))
             return "forbidden"
 
-# @app.route("/")
-# def index():
-#     return render_template('download.html')
+
 
 @app.route("/download", methods=["GET","POST"])
 def download():      
