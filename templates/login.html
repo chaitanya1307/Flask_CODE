@@ -1,26 +1,61 @@
 <!-- Store this code in 'login.html' file inside the 'templates' folder -->
 
+<!DOCTYPE html>
 <html>
-	{% include 'head.html' %}
-	<body></br></br></br>
-		<div align="center">
-		<div align="center" class="border">
-			<div class="header">
-				<h1 class="word">USER LOGIN</h1>
-			</div></br></br></br>
-			<h2 class="word">
-				<form action="{{ url_for('login') }}" method="post">
-                    {% if message is defined and message %}
-			<div class="alert alert-warning"> <strong> {{ message }} </strong></div>
-		{% endif %}
-				<div class="msg">{{ msg }}</div>
-				<br>
-				<br>
-					<input id="username" name="username" type="text" placeholder="Enter Your Username" class="textbox"/></br></br>
-					<input id="password" name="password" type="password" placeholder="Enter Your Password" class="textbox"/></br></br></br>
-					<input type="submit" class="btn" value="Sign In"></br></br>
-				</form>
-			</h2>
+  {% include 'head.html' %}
+<body>
+  {% include 'navigation.html' %}
+
+		<br>
+		<div class="wrapper wrapper-full-page ">
+			<div class="full-page section-image" filter-color="black" data-image="../../static/img/bg/fabio-mangione.jpg">
+			
+			<div class="content">
+			<div class="container">
+			<div class="col-lg-4 col-md-6 ml-auto mr-auto">
+			<form action="/login" method="post">
+			<div class="card card-login">
+			<div class="card-header ">
+			<div class="card-header ">
+			<h3 class="header text-center">Login</h3>
+			</div>
+			</div>
+			<div class="card-body ">
+			<div class="input-group">
+			<div class="input-group-prepend">
+			<span class="input-group-text">
+			<i class="nc-icon nc-single-02"></i>
+			</span>
+			</div>
+			<input id="username" name="username" type="text" placeholder="Enter Your Username" class="textbox"/>
+			</div>
+			<div class="input-group">
+			<div class="input-group-prepend">
+			<span class="input-group-text">
+			<i class="nc-icon nc-key-25"></i>
+			</span>
+			</div>
+			<input id="password" name="password" type="password" placeholder="Enter Your Password" class="textbox"/>
+			</div>
+			<br/>
+			<div class="form-group">
+			<div class="form-check">
+			<label class="form-check-label">
+			<input class="form-check-input" type="checkbox" value checked>
+			<span class="form-check-sign"></span>
+			Subscribe to newsletter
+			</label>
+			</div>
+			</div>
+			</div>
+			<div class="card-footer ">
+			<a href="javascript:;" class="btn btn-warning btn-round btn-block mb-3">Get Started</a>
+			</div>
+		</div>
+	</form>
+	</div>
+	</div>
+	</div>
 			<p class="bottom">Don't have an account? <a class="bottom" href="{{url_for('register')}}"> Sign Up here</a></p>
 		</div>
 		</div>
