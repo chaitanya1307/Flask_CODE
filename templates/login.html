@@ -5,7 +5,7 @@
 	
   {% include 'head2.html' %}
 <body>
-  
+	{% include 'navigation2.html' %}
 
 		<br>
 		<br>
@@ -53,7 +53,8 @@
 			</div>
 			<div class="card-footer ">
 				<input type="submit" class="btn" value="Sign In">
-				<p class="bottom">Don't have an account? <a class="bottom" href="{{url_for('register')}}"> SignUp here</a></p>
+				<br>
+				<br>
 				<p class="bottom">forgot password <a class="bottom" href="{{url_for('forgot_password')}}">setnew password</a></p>
 			<!-- <a href="javascript:;" class="btn btn-warning btn-round btn-block mb-3">Get Started</a> -->
 			</div>

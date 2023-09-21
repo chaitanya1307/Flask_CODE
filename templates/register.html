@@ -1,42 +1,85 @@
+<!DOCTYPE html>
 <html>
-   {% include 'head2.html' %}
+	
+  {% include 'head2.html' %}
+<body>
+	{% include 'navigation2.html' %}
+
+		<br>
+		<br>
+		<br>
+      <div class="wrapper wrapper-full-page ">
+         <div class="full-page register-page section-image" filter-color="black" data-image="../../static/img/bg/jan-sendereks.jpg">
+         <div class="content">
+         <div class="container">
+         <!-- <div class="row"> -->
+            <div class="col-lg-4 col-md-6 ml-auto mr-auto">
+         <!-- <div class="info-area info-horizontal mt-5"> -->
+         <!-- <div class="icon icon-primary">
+         <i class="nc-icon nc-tv-2"></i>
+         </div> -->
+         
+            <div class="card card-signup text-center">
+            <div class="card-header ">
+            <h4 class="card-title">Register</h4>
+<div class="card-body ">
+   <form action="{{ url_for('register') }}" method="post" >
+      <input type="hidden" class="form-control" name="register">
+   <div class="input-group">
+   <div class="input-group-prepend">
+   <span class="input-group-text">
+   <i class="nc-icon nc-single-02"></i>
+   </span>
+   </div>
+   <input type="text" class="form-control" id="username" name="username" placeholder="Enter name" name="username">
+   </div>
+
+   <div class="input-group">
+      <div class="input-group-prepend">
+      <span class="input-group-text">
+      <i class="nc-icon nc-email-85"></i>
+      </span>
+      </div>
+      <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" name="email">  
+      </div>
+   <div class="input-group">
+   <div class="input-group-prepend">
+   <span class="input-group-text">
+   <i class="nc-icon nc-tablet-2"></i>
+   </span>
+   </div>
+   <input type="number" class="form-control" pattern="\d{1,5}" id="phonenum" name="phonenum" placeholder="Enter phone number" name="pswd">
+   </div>
+   <div class="input-group">
+   <div class="input-group-prepend">
+   <span class="input-group-text">
+   <i class="nc-icon nc-key-25"></i>
+   </span>
+   </div>
+   <input type="password" class="form-control" pattern="[A-Za-z0-9]{8,16}" id="password" name="password" placeholder="Enter password" name="pswd">
+   </div>
    
-   <body align="center">
-      
-      <br>
-      <br>
-      <br>
-      <br>
-      <!-- <div class="container"> -->
-         <h2>Admin Registration </h2>
-         <form action="{{ url_for('register') }}" method="post">
-            {% if message is defined and message %}
-            <div class="alert alert-warning"> <strong> {{ message }} </strong></div>
-            {% endif %}
-            <br>
-            <div class="form-group">
-               <input type="hidden" class="form-control" name="register">
-            </div>
-            <br>
-            <div class="form-group">
-               username: <input type="text" class="form-control" id="username" name="username" placeholder="Enter name" name="username">
-            </div>
-            <br>
-            <div class="form-group">
-               Email: <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" name="email">
-            </div>
-            <br>
-            <div class="form-group">
-               Phone number: <input type="number" class="form-control" pattern="\d{1,5}" id="phonenum" name="phonenum" placeholder="Enter phone number" name="pswd">
-            </div>
-            <br>
-            <div class="form-group">
-               Password: <input type="password" class="form-control" pattern="[A-Za-z0-9]{8,16}" id="password" name="password" placeholder="Enter password" name="pswd">
-            </div>
-            <br>
-            <button type="submit" class="btn btn-primary">Register</button>
-            <p class="bottom">Already have an account? <a class="bottom" href="{{url_for('login')}}"> Login here</a></p>
-         </form>
-      <!-- </div> -->
-   </body>
+   
+   <!-- <div class="form-check text-left">
+   <label class="form-check-label">
+   <input class="form-check-input" type="checkbox" checked>
+   <span class="form-check-sign"></span>
+   I agree to the <a href="#something">terms and conditions</a>.
+   </label>
+   </div> -->
+   <br>
+               <button type="submit" class="btn btn-primary">Register</button>
+               <!-- <input type="submit" class="btn btn-primary" value="Registerrrrrr"> -->
+               <!-- <p class="bottom">Already have an account? <a class="bottom" href="{{url_for('login')}}"> Login here</a></p> -->
+   </form>
+   </div>
+   <!-- <div class="card-footer ">
+   <a href="javascript:;" class="btn btn-info btn-round">Get Started</a>
+   </div> -->
+   </div>
+   </div>
+   </div>
+   </div>
+   </div>
+</body>
 </html>

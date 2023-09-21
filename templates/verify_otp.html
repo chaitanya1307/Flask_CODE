@@ -2,12 +2,22 @@
 <html lang="en">
     {% include 'head2.html' %}
    <body>
-    
+    {% include 'navigation2.html' %}
       <!-- <div class="container"> -->
         <br>
         <br>
         <br>
-         <h2>Verify OTP and Set New Password</h2>
+        <div class="wrapper wrapper-full-page ">
+			<div class="full-page section-image" filter-color="black" data-image="../../static/img/bg/fabio-mangione.jpg">
+			
+			<div class="content">
+			<div class="container">
+			<div class="col-lg-4 col-md-6 ml-auto mr-auto">
+                <div class="card card-signup text-center">
+                    <div class="card-header ">
+                    <h4 class="card-title">Verify OTP and Set New Password</h4>
+        <div class="card-body ">
+         
          <form method="POST" action="/verify_otp">
             <div class="form-group">
                <label for="otp">Enter OTP:</label>

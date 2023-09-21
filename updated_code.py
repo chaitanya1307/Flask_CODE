@@ -106,6 +106,7 @@ def profile():
 def register():
 		message=" "
 		if request.method == 'GET':
+			print("Get Register")
 			return render_template('register.html', message="please fill out the form")
 		elif request.method == 'POST':
 
@@ -113,6 +114,8 @@ def register():
 			if 'verify' in request.form:
 				email = request.form['email']
 				otp_req = request.form['otp']
+				print(otp)
+				print(email)
 				if validate_otp(email, otp_req):
 					return render_template("login.html", message="Successfully Verified... Please Login.")
 				else:
@@ -136,8 +139,10 @@ def register():
 					return render_template('register.html', message=message)
 				else:
 					otp=randint(000000,999999)
+					print(otp)
 					validation = 0
 					query= f"INSERT INTO Email (username,email,passwrd,phonenum,otp) VALUES ('{username}','{email}', '{password}','{phonenum}','{otp}');"
+					print(query)
 					connection_cursor.execute(query)
 					connection.commit()
 					connection_cursor.close()
