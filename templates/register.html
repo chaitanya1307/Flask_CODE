@@ -1,11 +1,13 @@
 <html>
-   <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title aling="center">Admin Registration Form</title>
-   </head>
+   {% include 'head2.html' %}
+   
    <body align="center">
-      <div class="container">
+      
+      <br>
+      <br>
+      <br>
+      <br>
+      <!-- <div class="container"> -->
          <h2>Admin Registration </h2>
          <form action="{{ url_for('register') }}" method="post">
             {% if message is defined and message %}
@@ -25,7 +27,7 @@
             </div>
             <br>
             <div class="form-group">
-               Phone number: <input type="number" class="form-control" pattern="\d{1,5}" id="phonenum" name="phonenum" placeholder="Enter password" name="pswd">
+               Phone number: <input type="number" class="form-control" pattern="\d{1,5}" id="phonenum" name="phonenum" placeholder="Enter phone number" name="pswd">
             </div>
             <br>
             <div class="form-group">
@@ -35,6 +37,6 @@
             <button type="submit" class="btn btn-primary">Register</button>
             <p class="bottom">Already have an account? <a class="bottom" href="{{url_for('login')}}"> Login here</a></p>
          </form>
-      </div>
+      <!-- </div> -->
    </body>
 </html>

@@ -2,10 +2,13 @@
 
 <!DOCTYPE html>
 <html>
-  {% include 'head.html' %}
+	
+  {% include 'head2.html' %}
 <body>
-  {% include 'navigation.html' %}
+  
 
+		<br>
+		<br>
 		<br>
 		<div class="wrapper wrapper-full-page ">
 			<div class="full-page section-image" filter-color="black" data-image="../../static/img/bg/fabio-mangione.jpg">
@@ -13,7 +16,7 @@
 			<div class="content">
 			<div class="container">
 			<div class="col-lg-4 col-md-6 ml-auto mr-auto">
-			<form action="/login" method="post">
+			<form action="{{ url_for('login') }}" method="post">
 			<div class="card card-login">
 			<div class="card-header ">
 			<div class="card-header ">
@@ -43,20 +46,23 @@
 			<label class="form-check-label">
 			<input class="form-check-input" type="checkbox" value checked>
 			<span class="form-check-sign"></span>
-			Subscribe to newsletter
+			Agree
 			</label>
 			</div>
 			</div>
 			</div>
 			<div class="card-footer ">
-			<a href="javascript:;" class="btn btn-warning btn-round btn-block mb-3">Get Started</a>
+				<input type="submit" class="btn" value="Sign In">
+				<p class="bottom">Don't have an account? <a class="bottom" href="{{url_for('register')}}"> SignUp here</a></p>
+				<p class="bottom">forgot password <a class="bottom" href="{{url_for('forgot_password')}}">setnew password</a></p>
+			<!-- <a href="javascript:;" class="btn btn-warning btn-round btn-block mb-3">Get Started</a> -->
 			</div>
 		</div>
 	</form>
 	</div>
 	</div>
 	</div>
-			<p class="bottom">Don't have an account? <a class="bottom" href="{{url_for('register')}}"> Sign Up here</a></p>
+			<!-- <p class="bottom">Don't have an account? <a class="bottom" href="{{url_for('register')}}"> Sign Up here</a></p> -->
 		</div>
 		</div>
 	</body>

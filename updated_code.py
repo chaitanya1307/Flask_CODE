@@ -392,7 +392,48 @@ def post_geolocation():
 		ipaddress.ip_address(request.form['ip_address'])
 		req = requests.get('https://ipgeolocation.abstractapi.com/v1/?ip_address=' + request.form['ip_address'] + '&api_key=2470d093773e499ea714dc1c5c1c598e')
 		return make_response(jsonify(req.json()))
-    
+	
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+		if request.method == 'POST':
+			email = request.form['email']
+			otp = str(randint(100000, 999999))
+			msg = Message(subject='Forgot Password OTP', sender='sai.chaitu1307@gmail.com', recipients=[email])
+			msg.body = f'Your OTP for resetting the password is: {otp}'
+			mail.send(msg)
+			# Store the OTP in the session to verify later
+			session['reset_password_otp'] = otp
+			print("session opt is ====",otp)
+			session['reset_password_email'] = email
+			return redirect(url_for('verify_otp'))
+		return render_template('forgot_password.html')
+
+# Route for verifying OTP and setting a new password
+@app.route('/verify_otp', methods=['GET', 'POST'])
+def verify_otp():
+		if request.method == 'POST':
+			entered_otp = request.form['otp']
+			new_password = request.form['new_password']
+			print("entered otp ::::::::",entered_otp)
+			if 'reset_password_otp' in session and 'reset_password_email' in session:
+				if entered_otp == session['reset_password_otp']:
+					# Update the user's password in the database
+					email = session['reset_password_email']
+					connection = db_connection()
+					connection_cursor = connection.cursor()
+					query = f"UPDATE Email SET passwrd = '{new_password}' WHERE email = '{email}';"
+					print("query is >>>>",query)
+					connection_cursor.execute(query)
+					connection.commit()
+					connection_cursor.close()
+					connection.close()
+					return redirect(url_for('login'))
+				else:
+					flash('Incorrect OTP. Please try again.')
+			else:
+				flash('OTP session expired. Please request a new OTP.')
+		return render_template('verify_otp.html')
+		
     
 		
 			
