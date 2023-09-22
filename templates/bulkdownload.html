@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+   {% include 'head.html' %}
+   <body>
+      {% include 'navigation.html' %}
+      <br>
+      <br>
+      <br>
+      <div class="container mt-3">
+        <!-- <h2>YouTube Video Downloader</h2> -->
+        <form action="/bulkdownload" method="post">
+            {% if mesage is defined and mesage %}
+                {% if errorType is defined and errorType %}
+                    <div class="alert alert-success">{{ mesage }}</div>
+                {% else  %}
+                    <div class="alert alert-danger">{{ mesage }}</div>
+                {% endif %}
+            {% endif %}
+            <div class="mb-3 mt-3">
+                <label for="video_url">Enter YouTube Video Url:</label>
+                <textarea type="text" class="form-control" rows="60" cols="30"  id="video_url" placeholder="Enter url_1,Enter url_2,Enter url_3,....." name="video_url"></textarea>
+            </div>
+            <br>
+            <br>          
+            <button type="submit" class="btn btn-primary">Download</button>
+        </form>
+      </div>
+    <br><br>
+   </body>
+</html>

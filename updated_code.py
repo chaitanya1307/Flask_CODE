@@ -10,6 +10,9 @@ import re
 import ipaddress
 import requests
 from werkzeug.utils import secure_filename
+import pika, os
+import uuid
+import datetime
 
 app=Flask(__name__)
 mail = Mail(app)
@@ -40,6 +43,19 @@ def db_connection():
     write_timeout=timeout,
     )
     return connection
+
+def rabbitdq_connection():
+		url = os.environ.get('CLOUDAMQP_URL', 'amqps://qkccwucm:ewRM2mVltak6bckNsUnQwRGl1IStk-I2@puffin.rmq2.cloudamqp.com/qkccwucm')
+		params = pika.URLParameters(url)
+		connection1 = pika.BlockingConnection(params)
+		return connection1
+
+		# channel = connection.channel() # start a channel
+		# channel.queue_declare(queue='hello') # Declare a queue
+		# channel.basic_publish(exchange='',
+		# 					routing_key='hello',
+		# 					body='Hello CloudAMQP!')
+		
 
 @app.route('/validate', methods=['POST'])
 def validate_otp(email, otp):
@@ -346,44 +362,63 @@ def editprofile():
 
 
 
-@app.route("/download", methods=["GET","POST"])
-def download():      
-        mesage = ''
-        errorType = 0
-        if request.method == 'POST' and 'video_url' in request.form:
-            youtubeUrl = request.form["video_url"]
-            print(youtubeUrl)
-            if(youtubeUrl):
-                validateVideoUrl = (r'(https?://)?(www\.)?''(youtube|youtu|youtube-nocookie)\.(com|be)/''(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
-                validVideoUrl = re.match(validateVideoUrl, youtubeUrl)
-                if validVideoUrl:
-                    url = YouTube(youtubeUrl)
-                    video = url.streams.get_highest_resolution()
-                    user_id = session['user_id']
-                    filename = f"{session['user_id']}_{url.title}.mp4"
-                    path = os.getcwd()
-                    UPLOAD_FOLDER = os.path.join(path, 'uploads')
-                    os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
-                    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-                    downloadFolder = str(os.path.join(f"{app.config['UPLOAD_FOLDER']}/{user_id}"))
-                    video.download(downloadFolder, filename=filename)
-                    connection=db_connection()
-                    connection_cursor=connection.cursor()
-                    query = f"INSERT INTO video_info (user_id, filename) VALUES ('{user_id}', '{filename}');"
-                    connection_cursor.execute(query)
-                    connection.commit()
-                    connection_cursor.close()
-                    connection.close()
-                    mesage = 'Video Downloaded and Added to Your Profile Successfully!'
-                    errorType = 1
-                    return redirect(url_for('videos'))
-                else:
-                    mesage = 'Enter Valid YouTube Video URL!'
-                    errorType = 0        
-            else:
-                mesage='enter Youtube video url'
-                errorType=0
-        return render_template('download.html', mesage = mesage, errorType = errorType)
+@app.route("/bulkdownload", methods=["GET","POST"])
+def bulkdownload():      
+	mesage = ''
+	errorType = 0
+	if request.method == 'POST' and 'video_url' in request.form:
+		youtubeUrls = request.form.get("video_url")
+		youtubeUrls = youtubeUrls.split("\n")
+
+		db_conn = db_connection()
+		db_cursor = db_conn.cursor()
+		rmq_conn = rabbitdq_connection()
+		rmq_channel = rmq_conn.channel()
+		rmq_channel.queue_declare(queue="youtube_download_queue", durable=True)
+
+		user_id = session['user_id']		
+		timestamp = datetime.datetime.now()
+		status="queued"
+
+		for url in youtubeUrls:
+			id = uuid.uuid1()
+			query2=f"INSERT INTO youtube_url (job_id,job_url,user_id,time_stamp,job_status) VALUES ('{id}', '{url}','{user_id}','{timestamp}','{status}');"
+			db_cursor.execute(query2)
+			db_conn.commit()
+
+			payload={
+				"job_id": {str(id)},
+				"job_url": {url},
+				"user_id": {user_id},
+				"timestamp": {str(timestamp)}
+			}
+			print(payload)
+			rmq_channel.basic_publish(body=str(payload), exchange="", routing_key="youtube_download_queue")
+
+		mesage = 'Video Downloaded and Added to Your Profile Successfully!'
+		errorType = 1
+		db_conn.close()
+		db_cursor.close()
+		rmq_channel.close()
+		rmq_conn.close()
+
+	return render_template('bulkdownload.html', mesage = mesage, errorType = errorType)
+
+# @app.route('/bulkdownload')
+# def bulkdownload():
+# 	if request.method == 'POST' and 'video_url' in request.form:
+# 		youtubeUrl = request.form["video_url"]
+# 		print(youtubeUrl)
+# 		return "successssssss"
+		# if(youtubeUrl):
+		# 	validateVideoUrl = (r'(https?://)?(www\.)?''(youtube|youtu|youtube-nocookie)\.(com|be)/''(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
+		# 	validVideoUrl = re.match(validateVideoUrl, youtubeUrl)
+		# 	if validVideoUrl:
+		# 		return "Vishnu"
+
+
+
+
 
 @app.route('/location')
 def get_location():
