@@ -382,10 +382,10 @@ def bulkdownload():
 			db_conn.commit()
 
 			payload={
-				"job_id": {str(id)},
-				"job_url": {url},
-				"user_id": {user_id},
-				"timestamp": {str(timestamp)}
+				"job_id": str(id),
+				"job_url": url,
+				"user_id": user_id,
+				"timestamp": str(timestamp)
 			}
 			print(payload)
 			rmq_channel.basic_publish(body=str(payload), exchange="", routing_key="youtube_download_queue")
