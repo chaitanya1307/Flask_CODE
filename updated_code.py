@@ -149,19 +149,31 @@ def register():
 					connection.close()
 					return render_template('register.html', message=message)
 				else:
-					otp=randint(000000,999999)
-					print(otp)
+					
 					validation = 0
-					query= f"INSERT INTO Email (username,email,passwrd,phonenum,otp) VALUES ('{username}','{email}', '{password}','{phonenum}','{otp}');"
+					rmq_conn = rabbitdq_connection()
+					rmq_channel = rmq_conn.channel()
+					rmq_channel.queue_declare(queue="otp_email", durable=True)
+					timestamp = datetime.datetime.now()
+					otp="queued"
+					query= f"INSERT INTO Email (username,email,passwrd,phonenum,otp,time_stamp) VALUES ('{username}','{email}', '{password}','{phonenum}','{otp}','{timestamp}');"
 					print(query)
 					connection_cursor.execute(query)
+					payload={
+				            "email": email,
+							"timestamp": str(timestamp)
+					}
+					print(payload)
+					rmq_channel.basic_publish(body=str(payload), exchange="", routing_key="otp_email")
 					connection.commit()
 					connection_cursor.close()
 					connection.close()
+					rmq_channel.close()
+					rmq_conn.close()
 					message='Registration successful'
-					msg = Message(subject='OTP',sender ='sai.chaitu1307@gmail.com',recipients = [email] )
-					msg.body = str(otp)
-					mail.send(msg)
+					# msg = Message(subject='OTP',sender ='sai.chaitu1307@gmail.com',recipients = [email] )
+					# msg.body = str(otp)
+					# mail.send(msg)
 					return render_template('verify.html', message=message, email=email)
 			else:
 				message = "Please enter an email address"
@@ -398,21 +410,6 @@ def bulkdownload():
 		rmq_conn.close()
 
 	return render_template('bulkdownload.html', mesage = mesage, errorType = errorType)
-
-# @app.route('/bulkdownload')
-# def bulkdownload():
-# 	if request.method == 'POST' and 'video_url' in request.form:
-# 		youtubeUrl = request.form["video_url"]
-# 		print(youtubeUrl)
-# 		return "successssssss"
-		# if(youtubeUrl):
-		# 	validateVideoUrl = (r'(https?://)?(www\.)?''(youtube|youtu|youtube-nocookie)\.(com|be)/''(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
-		# 	validVideoUrl = re.match(validateVideoUrl, youtubeUrl)
-		# 	if validVideoUrl:
-		# 		return "Vishnu"
-
-
-
 
 
 @app.route('/location')

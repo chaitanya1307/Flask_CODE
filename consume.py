@@ -59,5 +59,5 @@ def download_youtube_video(ch, method, properties, body):
                 
 rmq_channel.basic_consume(queue="youtube_download_queue",on_message_callback=download_youtube_video,auto_ack=True)
 rmq_channel.start_consuming()
-rmq_conn.close()
+connection1.close()
 db_cursor.close()
