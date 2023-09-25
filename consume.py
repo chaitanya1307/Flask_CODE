@@ -25,7 +25,6 @@ def db_connection():
 url = os.environ.get('CLOUDAMQP_URL', 'amqps://qkccwucm:ewRM2mVltak6bckNsUnQwRGl1IStk-I2@puffin.rmq2.cloudamqp.com/qkccwucm')
 params = pika.URLParameters(url)
 connection1 = pika.BlockingConnection(params)
-queue_name = 'youtube_download_queue'
 rmq_channel = connection1.channel()
 rmq_channel.queue_declare(queue="youtube_download_queue", durable=True)
 
@@ -45,7 +44,6 @@ def download_youtube_video(ch, method, properties, body):
                 path = os.getcwd()
                 UPLOAD_FOLDER = os.path.join(path, 'uploads')
                 os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
-                # app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
                 downloadFolder = str(os.path.join(f"{UPLOAD_FOLDER}/{user_id}"))
                 video.download(downloadFolder, filename=filename)
                 query = f"INSERT INTO video_info (user_id, filename) VALUES ('{user_id}', '{filename}');"
@@ -61,6 +59,5 @@ def download_youtube_video(ch, method, properties, body):
                 
 rmq_channel.basic_consume(queue="youtube_download_queue",on_message_callback=download_youtube_video,auto_ack=True)
 rmq_channel.start_consuming()
-#rmq_channel.close()
 rmq_conn.close()
 db_cursor.close()
