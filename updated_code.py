@@ -125,7 +125,6 @@ def register():
 			if 'verify' in request.form:
 				email = request.form['email']
 				otp_req = request.form['otp']
-				print(otp)
 				print(email)
 				if validate_otp(email, otp_req):
 					return render_template("login.html", message="Successfully Verified... Please Login.")

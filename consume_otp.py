@@ -1,27 +1,12 @@
-from flask import *  
+
 import pika
 import json
 import os
 import pymysql
 import re
 from random import *
-from flask_mail import *
-# from yourapp import create_app
+import smtplib
 
-
-app=Flask(__name__)
-# app.app_context().push()
-mail = Mail(app)
-app.secret_key = 'sai.chaitu1307@gmail.com'
-
-app.config["MAIL_SERVER"]='smtp.gmail.com'  
-app.config["MAIL_PORT"] = 465     
-app.config["MAIL_USERNAME"] = 'sai.chaitu1307@gmail.com'  
-app.config['MAIL_PASSWORD'] = 'jmnmmhnoyxrcymkw'  
-app.config['MAIL_USE_TLS'] = False  
-app.config['MAIL_USE_SSL'] = True
-
-mail = Mail(app)
 
 def db_connection():
     timeout = 10
@@ -53,12 +38,16 @@ def verify_otp(ch, method, properties, body):
                 payload = json.loads(body.decode().replace("'","\""))
                 email = payload["email"]
                 time_stamp = payload["timestamp"]
-                
+                # s.login("sai.chaitu1307@gmail.com ", "your gmail's security")
+
                 otp=randint(000000,999999)
-                msg = Message(subject='OTP',sender ='sai.chaitu1307@gmail.com',recipients = [email] )
-                msg.body = str(otp)
-                mail.send(msg)
-                print(otp)
+                print("---------------------",otp)
+                msg = f" {otp}  is your otp"
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.login("sai.chaitu1307@gmail.com", "jmnmmhnoyxrcymkw")
+                server.sendmail("sai.chaitu1307@gmail.com",email,msg)
+
                 query2 = f"UPDATE Email SET otp = '{otp}' where email='{email}';"
                 db_cursor.execute(query2)
                 db_conn.commit()
@@ -68,9 +57,5 @@ rmq_channel.basic_consume(queue="otp_email",on_message_callback=verify_otp,auto_
 rmq_channel.start_consuming()
 connection1.close()
 db_cursor.close()
-# msg = Message(subject='OTP',sender ='sai.chaitu1307@gmail.com',recipients = [email] )
-# msg.body = str(otp)
-# mail.send(msg)
-if __name__=="__main__":
-	app.run(debug= True)
+
 
