@@ -13,15 +13,22 @@ from werkzeug.utils import secure_filename
 import pika, os
 import uuid
 import datetime
+from dotenv import load_dotenv 
+
+current_directory = os.path.dirname(os.path.abspath(__file__))
+dotenv_path = os.path.join(current_directory, '.env')
+
+# Load environment variables from the .env file
+load_dotenv(dotenv_path)
 
 app=Flask(__name__)
 mail = Mail(app)
-app.secret_key = 'sai.chaitu1307@gmail.com'
+app.secret_key = os.environ.get('MAIL_USERNAME')
 
 app.config["MAIL_SERVER"]='smtp.gmail.com'  
 app.config["MAIL_PORT"] = 465     
-app.config["MAIL_USERNAME"] = 'sai.chaitu1307@gmail.com'  
-app.config['MAIL_PASSWORD'] = 'jmnmmhnoyxrcymkw'  
+app.config["MAIL_USERNAME"] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_USE_TLS'] = False  
 app.config['MAIL_USE_SSL'] = True
 
@@ -170,9 +177,6 @@ def register():
 					rmq_channel.close()
 					rmq_conn.close()
 					message='Registration successful'
-					# msg = Message(subject='OTP',sender ='sai.chaitu1307@gmail.com',recipients = [email] )
-					# msg.body = str(otp)
-					# mail.send(msg)
 					return render_template('verify.html', message=message, email=email)
 			else:
 				message = "Please enter an email address"
@@ -244,9 +248,7 @@ def uploads(user_id, filename):
 			return send_file(f"uploads/{user_id}/{filename}")
 		elif filename.lower().endswith(('png', 'jpg', 'jpeg', 'gif')):
 			return send_file(f"uploads/{user_id}/{filename}")
-        # else:
-        #     return "Forbidden", 403
-
+       
 
 @app.route('/videos', methods=['POST','GET'])
 def videos():

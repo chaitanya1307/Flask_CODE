@@ -6,6 +6,12 @@ import pymysql
 import re
 from random import *
 import smtplib
+from dotenv import load_dotenv
+current_directory = os.path.dirname(os.path.abspath(__file__))
+dotenv_path = os.path.join(current_directory, '.env')
+
+# Load environment variables from the .env file
+load_dotenv(dotenv_path)
 
 
 def db_connection():
@@ -45,7 +51,9 @@ def verify_otp(ch, method, properties, body):
                 msg = f" {otp}  is your otp"
                 server = smtplib.SMTP('smtp.gmail.com', 587)
                 server.starttls()
-                server.login("sai.chaitu1307@gmail.com", "jmnmmhnoyxrcymkw")
+                password = os.environ.get('MAIL_PASSWORD')
+                
+                server.login("sai.chaitu1307@gmail.com", password)
                 server.sendmail("sai.chaitu1307@gmail.com",email,msg)
 
                 query2 = f"UPDATE Email SET otp = '{otp}' where email='{email}';"
