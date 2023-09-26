@@ -1,0 +1,37 @@
+<html>
+{% include 'head.html' %}
+
+<body>
+   {% include 'navigation.html' %}
+</div>
+<br>
+<br>
+
+<div class="container">
+   <h1>Upload a Text File</h1>
+   <form method="POST" action="/audio" enctype="multipart/form-data">
+      <input type="file" name="text_file" accept=".txt" multiple>
+      <input type="submit" value="Convert to Audio">
+   </form>
+   <div class="row">
+      {% for audio in audios %}
+      <div class="col-md-4">
+         <div class="thumbnail">
+          <audio width="200" height="200" controls>
+           <source src="/uploads/{{audio['user_id']}}/{{audio['filename']}}"  >
+            <a href="/uploads/{{audio['user_id']}}/{{audio['filename']}}" target="_blank"> </a>
+          </audio>
+           <form method="POST" action="/delete_audio/{{audio['user_id']}}/{{audio['filename']}}">
+              <button type="submit" class="btn btn-danger">Delete</button>
+           </form>
+           </div>
+           
+         </div>
+      </div>
+      {% endfor %}
+   </div>
+   {% if msg %}
+   {{msg}}
+   {% endif%}
+</body>
+</html>

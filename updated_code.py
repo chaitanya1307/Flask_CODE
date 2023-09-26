@@ -13,7 +13,9 @@ from werkzeug.utils import secure_filename
 import pika, os
 import uuid
 import datetime
-from dotenv import load_dotenv 
+from dotenv import load_dotenv
+import bs4 as bs
+import pyttsx3
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 dotenv_path = os.path.join(current_directory, '.env')
@@ -448,6 +450,65 @@ def verify_otp():
 			else:
 				flash('OTP session expired. Please request a new OTP.')
 		return render_template('verify_otp.html')
+
+# @app.route('/audio', methods=["POST", "GET"])
+# def audio():
+#     if request.method == 'GET':
+#         if 'user_id' in session:
+#             user_id = session.get('user_id')
+#             connection = db_connection()
+#             connection_cursor = connection.cursor()
+#             query = f"SELECT user_id, filename, id FROM audios WHERE user_id='{user_id}';"
+#             print(f"Audio_get---->{query}")
+#             connection_cursor.execute(query)
+#             audios = connection_cursor.fetchall()
+#             print(f"These are the audios---->{audios}")
+#             connection_cursor.close()
+#             connection.close()
+#             return render_template('audio.html', audios=audios)
+        
+#     if request.method == 'POST':
+# 		if 'user_id' in session:
+# 			user_id = session['user_id']
+# 			path = os.getcwd()
+# 			UPLOAD_FOLDER = os.path.join(path, 'uploads')
+# 			app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# 			for text_file in request.files.getlist('text_file'):
+# 						if text_file and allowed_file(text_file.filename):
+# 							filename = text_file.filename
+# 							print(f"filename----->{filename}")
+							
+# 							#db_connections & RabbitMQ_connections
+# 							connection = db_connection()
+# 							connection_cursor = connection.cursor()
+# 							rq_con=rabbit_conn()
+# 							rq_channel=rq_con.channel()
+# 							rq_channel.queue_declare(queue="speech_queue",durable=True)
+# 							user_id=session['user_id']
+# 							upload_time=datetime.datetime.now()
+# 							status="queued"
+# 							id=uuid.uuid1()
+
+# 							#Decalre & Insert into speech_file table
+# 							query2=f"INSERT INTO file_text (job_id,job_file,user_id,upload_time,job_status) VALUES('{id}','{filename}','{user_id}','{upload_time}','{status}');"
+# 							connection_cursor.execute(query2)
+# 							connection.commit()
+# 							payload={
+# 								"job_id":str(id),
+# 								"job_file":filename,
+# 								"user_id":user_id,
+# 								"upload_time":str(upload_time)
+# 							}
+# 							print(f"Payload---{payload}")
+# 							rq_channel.basic_publish(body=str(payload),exchange='',routing_key='speech_queue')
+# 							msg = "Your file has been converted into speech and downloaded" 
+# 							connection.close()
+# 							connection_cursor.close()
+# 							rq_channel.close()
+# 							rq_con.close()        
+# 			return render_template('audio.html',msg=msg)
+# 		return "No file uploaded."
+
 		
     			
 
