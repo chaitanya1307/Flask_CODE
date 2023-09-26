@@ -90,16 +90,10 @@ def login():
 		connection_cursor = connection.cursor()
 		connection_cursor.execute(query)
 		user = connection_cursor.fetchone()
-		print("===================================================")
-		print(user)
 		if user is not None:
 			if user['username']==username and user['passwrd']==password:
 				session['user_id'] = user['personid']
-				print("--------------------")
-				print(session['user_id'])
-				return redirect(url_for('profile'))
-			
-			
+				return redirect(url_for('profile'))			
 		else:
 			message="user not found"
 			return render_template('login.html',message=message)
@@ -113,8 +107,6 @@ def profile():
 		query=f"SELECT * FROM Email WHERE personid = {user_id}"
 		connection_cursor.execute(query)
 		users=connection_cursor.fetchone()
-		print(users)
-	
 		return render_template("profile.html",users=users)
 	else:
 		message="You must be logged in"
@@ -127,12 +119,9 @@ def register():
 			print("Get Register")
 			return render_template('register.html', message="please fill out the form")
 		elif request.method == 'POST':
-
-			print(request.form)
 			if 'verify' in request.form:
 				email = request.form['email']
 				otp_req = request.form['otp']
-				print(email)
 				if validate_otp(email, otp_req):
 					return render_template("login.html", message="Successfully Verified... Please Login.")
 				else:
@@ -212,7 +201,6 @@ def gallery():
 	if request.method == 'POST':
 		if 'user_id' in session and 'files' in request.files:
 			files=request.files.getlist('files')
-			print("--------------------------------------------")
 			print(type(files))
 			user_id=session['user_id']
 			print(user_id)
@@ -228,7 +216,6 @@ def gallery():
 							app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 							print("+++++++", UPLOAD_FOLDER)
 							file.save(os.path.join(f"{app.config['UPLOAD_FOLDER']}/{user_id}", file.filename))
-							print("-----------------------------------")
 							connection = db_connection()
 							connection_cursor = connection.cursor()
 							query = f"INSERT INTO pic_info (user_id,filename) VALUE ('{user_id}', '{filename}');"
@@ -268,7 +255,6 @@ def videos():
 	if request.method == 'POST':
 		if 'user_id' in session and 'files' in request.files:
 			files=request.files.getlist('files')
-			print("--------------------------------------------")
 			print(type(files))
 			user_id=session['user_id']
 			print(user_id)
@@ -282,7 +268,6 @@ def videos():
 							os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
 							app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 							file.save(os.path.join(f"{app.config['UPLOAD_FOLDER']}/{user_id}",filename))
-							print("-----------------------------------")
 							connection = db_connection()
 							connection_cursor = connection.cursor()
 							query = f"INSERT INTO video_info (user_id,filename) VALUE ('{user_id}', '{filename}');"
@@ -313,7 +298,6 @@ def delete_image(user_id,filename):
 			connection.close()
 			return redirect(url_for('gallery'))
 		else:
-			print("---------------------------------")
 			return "Forbidden", 403
 
 @app.route('/delete_video/<int:user_id>/<filename>', methods=['POST'])
@@ -329,14 +313,12 @@ def delete_video(user_id,filename):
 			connection = db_connection()
 			connection_cursor = connection.cursor()
 			query2 = f"DELETE FROM video_info WHERE user_id='{user_id}' AND filename='{filename}';"
-			print("--------------")
 			connection_cursor.execute(query2)
 			connection.commit()
 			connection_cursor.close()
 			connection.close()
 			return redirect(url_for('videos'))
 		else:
-			print("---------------------------------")
 			return "Forbidden", 403
 		
 @app.route('/editprofile',methods=["POST","GET"])
@@ -467,9 +449,7 @@ def verify_otp():
 				flash('OTP session expired. Please request a new OTP.')
 		return render_template('verify_otp.html')
 		
-    
-		
-			
+    			
 
 if __name__=="__main__":
 	app.run(debug= True)
