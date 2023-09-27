@@ -178,7 +178,7 @@ def logout():
     session.pop('user_id')
     return redirect(url_for('login'))
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif','webp','mp4'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif','webp','mp4','txt','mp3','pdf'}
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -458,7 +458,7 @@ def audio():
 				user_id = session.get('user_id')
 				connection = db_connection()
 				connection_cursor = connection.cursor()
-				query = f"SELECT user_id, filename, id FROM audios WHERE user_id='{user_id}';"
+				query = f"SELECT user_id, filename, id FROM audios_speech WHERE user_id='{user_id}';"
 				print(f"Audio_get---->{query}")
 				connection_cursor.execute(query)
 				audios = connection_cursor.fetchall()
@@ -475,14 +475,13 @@ def audio():
 			for text_file in request.files.getlist('text_file'):
 				if text_file and allowed_file(text_file.filename):
 						filename = text_file.filename
-						print(f"filename----->{filename}")
-						
+						print(f"filename----->{filename}")						
 						#db_connections & RabbitMQ_connections
 						connection = db_connection()
 						connection_cursor = connection.cursor()
-						rq_con=rabbit_conn()
-						rq_channel=rq_con.channel()
-						rq_channel.queue_declare(queue="speech_queue",durable=True)
+						rmq_conn = rabbitdq_connection()
+						rmq_channel = rmq_conn.channel()
+						rmq_channel.queue_declare(queue="speech_queue",durable=True)
 						user_id=session['user_id']
 						upload_time=datetime.datetime.now()
 						status="queued"
@@ -499,11 +498,11 @@ def audio():
 							"upload_time":str(upload_time)
 						}
 						print(f"Payload---{payload}")
-						rq_channel.basic_publish(body=str(payload),exchange='',routing_key='speech_queue')
+						rmq_channel.basic_publish(body=str(payload),exchange='',routing_key='speech_queue')
 						connection.close()
 						connection_cursor.close()
-						rq_channel.close()
-						rq_con.close()  
+						rmq_channel.close()
+						rmq_conn.close()  
 				msg = "Your file has been converted into speech and downloaded" 
 				# connection.close()
 				# connection_cursor.close()
@@ -511,6 +510,8 @@ def audio():
 				# rq_con.close()        
 			return render_template('audio.html',msg=msg)
 		return "No file uploaded."
+
+
 
 		
     			
