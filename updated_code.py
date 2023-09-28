@@ -486,6 +486,14 @@ def audio():
 						upload_time=datetime.datetime.now()
 						status="queued"
 						id=uuid.uuid1()
+						path=os.getcwd()
+						print(path)
+						UPLOAD_FOLDER=os.path.join(path,'uploads')
+						app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+						filename = secure_filename(text_file.filename)
+						os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
+						pdf_path=text_file.save(os.path.join(f"{app.config['UPLOAD_FOLDER']}/{user_id}", filename))
+						print(pdf_path)
 
 						#Decalre & Insert into speech_file table
 						query2=f"INSERT INTO file_text (job_id,job_file,user_id,upload_time,job_status) VALUES('{id}','{filename}','{user_id}','{upload_time}','{status}');"
