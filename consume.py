@@ -4,6 +4,14 @@ import os
 import pymysql
 from pytube import YouTube
 import re
+import boto3
+from dotenv import load_dotenv
+current_directory = os.path.dirname(os.path.abspath(__file__))
+dotenv_path = os.path.join(current_directory, '.env')
+
+# Load environment variables from the .env file
+load_dotenv(dotenv_path)
+
 
 def db_connection():
     timeout = 10
@@ -21,7 +29,12 @@ def db_connection():
     )
     return connection
 
+AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
+AWS_SECRET_KEY = os.environ.get('AWS_SECRET_KEY')
+S3_BUCKET_NAME = 'flaskurl'
+S3_REGION = 'ap-south-1'
 
+#s3 = boto3.resource('s3',aws_access_key_id=AWS_ACCESS_KEY,aws_secret_access_key= AWS_SECRET_KEY)
 url = os.environ.get('CLOUDAMQP_URL', 'amqps://qkccwucm:ewRM2mVltak6bckNsUnQwRGl1IStk-I2@puffin.rmq2.cloudamqp.com/qkccwucm')
 params = pika.URLParameters(url)
 connection1 = pika.BlockingConnection(params)
@@ -46,6 +59,8 @@ def download_youtube_video(ch, method, properties, body):
                 os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
                 downloadFolder = str(os.path.join(f"{UPLOAD_FOLDER}/{user_id}"))
                 video.download(downloadFolder, filename=filename)
+                s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY, region_name=S3_REGION)
+                s3.upload_file(f"{UPLOAD_FOLDER}/{user_id}/{filename}",S3_BUCKET_NAME,f"uploads/{user_id}/youtube/{filename}")
                 query = f"INSERT INTO video_info (user_id, filename) VALUES ('{user_id}', '{filename}');"
                 print(query)
                 db_cursor.execute(query)
