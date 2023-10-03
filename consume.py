@@ -59,6 +59,7 @@ def download_youtube_video(ch, method, properties, body):
                 os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
                 downloadFolder = str(os.path.join(f"{UPLOAD_FOLDER}/{user_id}"))
                 video.download(downloadFolder, filename=filename)
+                
                 s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY, region_name=S3_REGION)
                 s3.upload_file(f"{UPLOAD_FOLDER}/{user_id}/{filename}",S3_BUCKET_NAME,f"uploads/{user_id}/youtube/{filename}")
                 query = f"INSERT INTO video_info (user_id, filename) VALUES ('{user_id}', '{filename}');"
