@@ -253,7 +253,7 @@ def videos():
 			user_id=session.get('user_id')
 			connection = db_connection()
 			connection_cursor = connection.cursor()
-			query = f" SELECT  * from youtube_url WHERE user_id='{user_id}';"
+			query = f" SELECT  * from youtube_url WHERE user_id='{user_id}' AND job_status = 'completed';"
 			print(query)
 			connection_cursor.execute(query)
 			videos = connection_cursor.fetchall()
