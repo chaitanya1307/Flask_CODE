@@ -62,11 +62,20 @@ def download_youtube_video(ch, method, properties, body):
                 
                 s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY, region_name=S3_REGION)
                 s3.upload_file(f"{UPLOAD_FOLDER}/{user_id}/{filename}",S3_BUCKET_NAME,f"uploads/{user_id}/youtube/{filename}")
-                query = f"INSERT INTO video_info (user_id, filename) VALUES ('{user_id}', '{filename}');"
-                print(query)
-                db_cursor.execute(query)
+                s3_key = f"uploads/{user_id}/youtube/{filename}"
 
-                query2 = f"UPDATE youtube_url SET job_status = 'completed' where job_id='{job_id}';"
+                url = s3.generate_presigned_url(
+					 ClientMethod = 'get_object',
+					 Params = {'Bucket': S3_BUCKET_NAME,'Key':s3_key},
+						 ExpiresIn = 360)
+                print(f"this is url ----- > {url}")
+
+                os.remove(f"{UPLOAD_FOLDER}/{user_id}/{filename}")
+                # query = f"INSERT INTO video_info (user_id, filename) VALUES ('{user_id}', '{filename}');"
+                # print(query)
+                # db_cursor.execute(query)
+
+                query2 = f"UPDATE youtube_url SET job_status = 'completed', `key` = '{s3_key}', bucket_name = '{S3_BUCKET_NAME}', job_url = '{url}' where job_id='{job_id}';"
                 print(query2)
                 db_cursor.execute(query2)
                 db_conn.commit()
