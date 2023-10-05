@@ -289,11 +289,23 @@ def delete_video(user_id,job_id):
 	if session_user_id is not None and str(session_user_id) == str(user_id):
 			connection = db_connection()
 			connection_cursor = connection.cursor()
+			# query2 = f"DELETE FROM youtube_url WHERE user_id='{user_id}' AND job_id = '{job_id}';"
+			# connection_cursor.execute(query2)
+			query = f" SELECT  * from youtube_url WHERE user_id='{user_id}' AND job_id = '{job_id}';"
+			connection_cursor.execute(query)
+			del_videos = connection_cursor.fetchall()
+			print("-------------------------",del_videos)
+
+			print(del_videos[0]['key'])
 			query2 = f"DELETE FROM youtube_url WHERE user_id='{user_id}' AND job_id = '{job_id}';"
 			connection_cursor.execute(query2)
+
 			connection.commit()
 			connection_cursor.close()
 			connection.close()
+			s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY, region_name=S3_REGION)
+			
+			response = s3.delete_object(Bucket=S3_BUCKET_NAME,Key=del_videos[0]['key'],)
 			return redirect(url_for('videos'))
 	else:
 			return "Forbidden", 403
