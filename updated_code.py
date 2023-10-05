@@ -13,7 +13,10 @@ from werkzeug.utils import secure_filename
 import pika, os
 import uuid
 import datetime
-from dotenv import load_dotenv 
+from dotenv import load_dotenv
+import bs4 as bs
+import pyttsx3
+import boto3
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 dotenv_path = os.path.join(current_directory, '.env')
@@ -31,6 +34,12 @@ app.config["MAIL_USERNAME"] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_USE_TLS'] = False  
 app.config['MAIL_USE_SSL'] = True
+
+AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
+AWS_SECRET_KEY = os.environ.get('AWS_SECRET_KEY')
+S3_BUCKET_NAME = 'flaskurl'
+S3_REGION = 'ap-south-1'
+s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY, region_name=S3_REGION)
 
 mail = Mail(app)
 
@@ -176,7 +185,7 @@ def logout():
     session.pop('user_id')
     return redirect(url_for('login'))
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif','webp','mp4'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif','webp','mp4','txt','mp3','pdf'}
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -244,7 +253,7 @@ def videos():
 			user_id=session.get('user_id')
 			connection = db_connection()
 			connection_cursor = connection.cursor()
-			query = f" SELECT  user_id,filename from video_info  WHERE user_id='{user_id}';"
+			query = f" SELECT  * from youtube_url WHERE user_id='{user_id}' AND job_status = 'completed';"
 			print(query)
 			connection_cursor.execute(query)
 			videos = connection_cursor.fetchall()
@@ -252,32 +261,6 @@ def videos():
 			connection_cursor.close()
 			connection.close() 
 		return render_template('videos.html',videos=videos)
-	if request.method == 'POST':
-		if 'user_id' in session and 'files' in request.files:
-			files=request.files.getlist('files')
-			print(type(files))
-			user_id=session['user_id']
-			print(user_id)
-			path = os.getcwd()
-			print(f"path----->{path}")
-			UPLOAD_FOLDER = os.path.join(path, 'uploads')
-			for file in files:
-				if file and allowed_file(file.filename):
-							filename = secure_filename(file.filename)
-							print(f"actual filename------>{filename}")
-							os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
-							app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-							file.save(os.path.join(f"{app.config['UPLOAD_FOLDER']}/{user_id}",filename))
-							connection = db_connection()
-							connection_cursor = connection.cursor()
-							query = f"INSERT INTO video_info (user_id,filename) VALUE ('{user_id}', '{filename}');"
-							print(query)
-							connection_cursor.execute(query)
-							connection.commit()
-							connection_cursor.close()
-							connection.close()
-			return redirect(url_for('videos'))
-
 
 @app.route('/delete/<int:user_id>/<filename>', methods=['POST'])
 def delete_image(user_id,filename):
@@ -365,7 +348,7 @@ def bulkdownload():
 		rmq_conn = rabbitdq_connection()
 		rmq_channel = rmq_conn.channel()
 		rmq_channel.queue_declare(queue="youtube_download_queue", durable=True)
-
+        
 		user_id = session['user_id']		
 		timestamp = datetime.datetime.now()
 		status="queued"
@@ -448,8 +431,71 @@ def verify_otp():
 			else:
 				flash('OTP session expired. Please request a new OTP.')
 		return render_template('verify_otp.html')
-		
-    			
+
+@app.route('/audio', methods=["POST", "GET"])
+def audio():
+	if request.method == 'GET':
+		if 'user_id' in session:
+				user_id = session.get('user_id')
+				connection = db_connection()
+				connection_cursor = connection.cursor()
+				query = f"SELECT user_id, filename, id FROM audios_speech WHERE user_id='{user_id}';"
+				print(f"Audio_get---->{query}")
+				connection_cursor.execute(query)
+				audios = connection_cursor.fetchall()
+				print(f"These are the audios---->{audios}")
+				connection_cursor.close()
+				connection.close()
+				return render_template('audio.html', audios=audios)
+	if request.method == 'POST':
+		if 'user_id' in session:
+			user_id = session['user_id']
+			path = os.getcwd()
+			UPLOAD_FOLDER = os.path.join(path, 'uploads')
+			app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+			for text_file in request.files.getlist('text_file'):
+				if text_file and allowed_file(text_file.filename):
+						filename = text_file.filename
+						print(f"filename----->{filename}")						
+						#db_connections & RabbitMQ_connections
+						connection = db_connection()
+						connection_cursor = connection.cursor()
+						rmq_conn = rabbitdq_connection()
+						rmq_channel = rmq_conn.channel()
+						rmq_channel.queue_declare(queue="speech_queue",durable=True)
+						user_id=session['user_id']
+						upload_time=datetime.datetime.now()
+						status="queued"
+						id=uuid.uuid1()
+						path=os.getcwd()
+						print(path)
+						UPLOAD_FOLDER=os.path.join(path,'uploads')
+						app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+						filename = secure_filename(text_file.filename)
+						os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
+						pdf_path=text_file.save(os.path.join(f"{app.config['UPLOAD_FOLDER']}/{user_id}", filename))
+						print(pdf_path)
+
+						#Decalre & Insert into speech_file table
+						query2=f"INSERT INTO file_text (job_id,job_file,user_id,upload_time,job_status) VALUES('{id}','{filename}','{user_id}','{upload_time}','{status}');"
+						connection_cursor.execute(query2)
+						connection.commit()
+						payload={
+							"job_id":str(id),
+							"job_file":filename,
+							"user_id":user_id,
+							"upload_time":str(upload_time)
+						}
+						print(f"Payload---{payload}")
+						rmq_channel.basic_publish(body=str(payload),exchange='',routing_key='speech_queue')
+						connection.close()
+						connection_cursor.close()
+						rmq_channel.close()
+						rmq_conn.close()  
+				msg = "Your file has been converted into speech and downloaded" 
+			        
+			return render_template('audio.html',msg=msg)
+		return "No file uploaded."
 
 if __name__=="__main__":
 	app.run(host="0.0.0.0", port=80)

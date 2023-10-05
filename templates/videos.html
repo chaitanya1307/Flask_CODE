@@ -15,7 +15,8 @@
        
         {% for video in videos %}
          <video width="320" height="240" controls>
-            <source src="/uploads/{{video['user_id']}}/{{video['filename']}}"> </source>  
+            <!-- <source src="{{ video['url'] }}"> -->
+            <source src=" {{ video['job_url'] }} "> </source>  
             Your browser does not support the video tag.   
         </video>
         <form method="POST" action="/delete_video/{{video['user_id']}}/{{video['filename']}}" style="display: inline;">
