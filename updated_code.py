@@ -261,32 +261,6 @@ def videos():
 			connection_cursor.close()
 			connection.close() 
 		return render_template('videos.html',videos=videos)
-	# if request.method == 'POST':
-	# 	if 'user_id' in session and 'files' in request.files:
-	# 		files=request.files.getlist('files')
-	# 		print(type(files))
-	# 		user_id=session['user_id']
-	# 		print(user_id)
-	# 		path = os.getcwd()
-	# 		print(f"path----->{path}")
-	# 		UPLOAD_FOLDER = os.path.join(path, 'uploads')
-	# 		for file in files:
-	# 			if file and allowed_file(file.filename):
-	# 						filename = secure_filename(file.filename)
-	# 						print(f"actual filename------>{filename}")
-	# 						os.makedirs(os.path.dirname(f"uploads/{user_id}/{filename}"), exist_ok=True)
-	# 						app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-	# 						file.save(os.path.join(f"{app.config['UPLOAD_FOLDER']}/{user_id}",filename))
-	# 						connection = db_connection()
-	# 						connection_cursor = connection.cursor()
-	# 						query = f"INSERT INTO video_info (user_id,filename) VALUE ('{user_id}', '{filename}');"
-	# 						print(query)
-	# 						connection_cursor.execute(query)
-	# 						connection.commit()
-	# 						connection_cursor.close()
-	# 						connection.close()
-	# 		return redirect(url_for('videos'))
-
 
 @app.route('/delete/<int:user_id>/<filename>', methods=['POST'])
 def delete_image(user_id,filename):
@@ -519,77 +493,9 @@ def audio():
 						rmq_channel.close()
 						rmq_conn.close()  
 				msg = "Your file has been converted into speech and downloaded" 
-				# connection.close()
-				# connection_cursor.close()
-				# rq_channel.close()
-				# rq_con.close()        
+			        
 			return render_template('audio.html',msg=msg)
 		return "No file uploaded."
-
-# def gen_presigned_url():
-# 	S3.Client.generate_presigned_url(
-# 		bucket_name = S3_BUCKET_NAME,
-# 		key = {key} ,
-# 		expiration=3600
-# 	)
-# 	return url
-
-# @app.route('/videos', methods=['POST','GET'])
-# def videos():
-# 	if request.method == 'GET':
-# 		if 'user_id'in session:
-# 			user_id=session.get('user_id')
-# 			connection = db_connection()
-# 			connection_cursor = connection.cursor()
-# 			query = f" SELECT * from video_info  WHERE user_id='{user_id}';"
-# 			print(query)
-# 			videos = []
-# 			print(f"-------{videos}")
-# 			connection_cursor.execute(query)
-# 			rows=connection_cursor.fetchall()
-# 			for row in rows:
-# 				print("---------",row)
-# 				filename = row["filename"]
-# 				s3_key = row["key"]
-# 				s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY, region_name=S3_REGION)
-
-# 				url = s3.generate_presigned_url(
-# 					 ClientMethod = 'get_object',
-# 					 Params = {'Bucket': S3_BUCKET_NAME,'Key':s3_key},
-# 						 ExpiresIn = 360)
-# 				videos.append(url)
-# 			connection_cursor.close()
-# 			connection.close() 
-# 		return render_template('videos.html',videos=videos)
-# 	if request.method == 'POST':
-# 		if 'user_id' in session and 'files' in request.files:
-# 			files=request.files.getlist('files')
-# 			print(type(files))
-# 			user_id=session['user_id']
-# 			print(user_id)
-# 			path = os.getcwd()
-# 			print(f"path----->{path}")
-# 			UPLOAD_FOLDER = os.path.join(path, 'uploads')
-# 			for file in files:
-# 				if file and allowed_file(file.filename):
-# 							filename = secure_filename(file.filename)
-# 							s3_key = f"uploads/{user_id}/youtube/{filename}"
-# 							s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY, region_name=S3_REGION)
-# 							s3.upload_file(os.path.join(UPLOAD_FOLDER, user_id, filename), S3_BUCKET_NAME, s3_key)
-# 							connection = db_connection()
-# 							connection_cursor = connection.cursor()
-# 							query = f"INSERT INTO video_info (user_id,filename,`key`,bucket_name) VALUE ('{user_id}', '{filename}','{s3_key}','{S3_BUCKET_NAME}');"
-# 							print(query)
-# 							connection_cursor.execute(query)
-# 							connection.commit()
-# 							connection_cursor.close()
-# 							connection.close()
-# 			return redirect(url_for('videos'))
-
-
-
-		
-    			
 
 if __name__=="__main__":
 	app.run(debug= True)
