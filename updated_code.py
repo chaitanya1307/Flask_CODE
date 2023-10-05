@@ -283,25 +283,19 @@ def delete_image(user_id,filename):
 		else:
 			return "Forbidden", 403
 
-@app.route('/delete_video/<int:user_id>/<filename>', methods=['POST'])
-def delete_video(user_id,filename):
+@app.route('/delete_video/<int:user_id>/<job_id>', methods=['POST'])
+def delete_video(user_id,job_id):
 	session_user_id = session.get('user_id')
 	if session_user_id is not None and str(session_user_id) == str(user_id):
-		print(f"it is in deleting with userid {session_user_id}")
-		path_to_delete = os.path.join('uploads', str(user_id), filename)
-		print(f"path_to_delete---->{path_to_delete}")
-		if os.path.exists(path_to_delete):
-			os.remove(path_to_delete)
-			print(f"After delete--->{path_to_delete}")
 			connection = db_connection()
 			connection_cursor = connection.cursor()
-			query2 = f"DELETE FROM video_info WHERE user_id='{user_id}' AND filename='{filename}';"
+			query2 = f"DELETE FROM youtube_url WHERE user_id='{user_id}' AND job_id = '{job_id}';"
 			connection_cursor.execute(query2)
 			connection.commit()
 			connection_cursor.close()
 			connection.close()
 			return redirect(url_for('videos'))
-		else:
+	else:
 			return "Forbidden", 403
 		
 @app.route('/editprofile',methods=["POST","GET"])
