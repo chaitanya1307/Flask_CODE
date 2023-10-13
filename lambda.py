@@ -33,13 +33,14 @@ AWS_SECRET_KEY = os.environ.get('AWS_SECRET_KEY')
 S3_BUCKET_NAME = 'flaskfile'
 S3_REGION = 'ap-south-1'
 
-# s3_C = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY, region_name=S3_REGION)
+s3_C = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY, region_name=S3_REGION)
 s3_R = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY, region_name=S3_REGION)
 
 event = {'Records': [{'eventVersion': '2.1', 'eventSource': 'aws:s3', 'awsRegion': 'ap-south-1', 'eventTime': '2023-10-12T11:07:07.336Z', 'eventName': 'ObjectCreated:Put', 'userIdentity': {'principalId': 'AWS:AIDAUS2MADNTYKTVPVJIN'}, 'requestParameters': {'sourceIPAddress': '183.82.97.86'}, 'responseElements': {'x-amz-request-id': 'QZ6DX28KPEQH0HZH', 'x-amz-id-2': '1/xqgP0jFBgpHW2U6yGRKHHU8kYcnKZxmKfSh7Zmp1mzbxcf9qXeaRY/WtvRGRMtsi4D2ldiLADft3PCuQkS/JvoR50wIpY7EYD+t/3PbA8='}, 's3': {'s3SchemaVersion': '1.0', 'configurationId': 'lambda_trigger', 'bucket': {'name': 'flaskurl', 'ownerIdentity': {'principalId': 'A8WIRMB3DCK3Y'}, 'arn': 'arn:aws:s3:::flaskurl'}, 'object': {'key': 'uploads/6/audios/sample.txt', 'size': 21, 'eTag': '6e6391b586f7fe47e9e60d888a26837e', 'versionId': '8bL0.3G.zk3FOOU9Suh.T6.zRxA7IkwZ', 'sequencer': '006527D35B494E41B6'}}}]}
 
 context=" "
-
+connection = db_connection()
+connection_cursor = connection.cursor()
 def lambda_handler(event, context):
     print(event)
     key=event['Records'][0]['s3']['object']['key']
@@ -58,11 +59,18 @@ def lambda_handler(event, context):
     path = os.getcwd()
     UPLOAD_FOLDER = os.path.join(path, 'uploads')
     s3_C.upload_file(f'{UPLOAD_FOLDER}/{user_id}/{c}.mp3',buc_name,f"uploads/{user_id}/audios/{c}.mp3")
+    query2 = f"UPDATE txt_speech SET stage = 'completed',s3_key = '{key}' where user_id='{user_id}';"
+    print(query2)
+    connection_cursor.execute(query2)
+    connection.commit()
     return {
         'statusCode': 200,
         'body': json.dumps('Hello from Lambda!')
     }
 lambda_handler(event,context)
+
+
+connection_cursor.close()
 
 
 
