@@ -28,6 +28,7 @@ def lambda_handler(event, context):
     buc_name=event['Records'][0]['s3']['bucket']['name']
     user_id=key.split("/")[1]
     c = key.split("/")[3]
+    print(key,buc_name,user_id,c,sep="\n")
     obj = s3_R.Object(buc_name,key)
     a=obj.get()['Body'].read().decode('utf-8')
     engine = pyttsx3.init()
