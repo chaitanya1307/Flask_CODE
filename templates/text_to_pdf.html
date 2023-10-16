@@ -1,0 +1,33 @@
+<html>
+{% include 'head.html' %}
+
+<body>
+   {% include 'navigation.html' %}
+   <br>
+   <br>
+   <br>
+   <br>
+      <h2>PDF Maker</h2>
+      {% if message is defined and message %}
+      <div class="alert alert-warning"> <strong> {{ message }} </strong></div>
+      {% endif %}
+      <form action="/text_to_pdf"  method="post" enctype="multipart/form-data">
+         <input type="file" name="text_file" accept=".txt" multiple required>
+         <input type="submit" value="Convert to PDF">
+      </form>
+      <div>
+         {% for pdf_file in pdf_files %}
+         <div class="w3-container">
+            <embed src="{{ pdf_file }}" width="500" height="400" type="application/pdf">
+         </div>
+         {% endfor %}
+      </div>
+      {% for row in rows %}
+      <div class="w3-container">
+         <form method="POST" action="/delete_pdf/{{row[2]}}/{{row[0]}}" style="display: inline;">
+            <button type="submit" style="font-size:24px"><i class="fa fa-trash-o"></i></button>
+         </form>
+         {% endfor %}
+      </div>
+   </body>
+</html>

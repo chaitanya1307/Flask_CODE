@@ -544,6 +544,105 @@ def delete_audio(user_id,job_id):
     else:
         return "Forbidden", 403
 
+@app.route('/text_to_pdf', methods=['GET', 'POST'])
+
+def text_to_pdf():
+        if request.method == 'GET':
+            if 'user_id'in session:
+                user_id=session.get('user_id')
+                print(user_id)
+                connection = db_connection()
+                connection_cursor = connection.cursor()
+                query = f"SELECT * from txt_pdf WHERE user_id='{user_id}';"
+                gallery_files=[]
+                print("========"+query)
+                connection_cursor.execute(query)
+                rows = connection_cursor.fetchall()
+                print(rows)
+                print("==========")
+                if rows is not None:
+                    for row in rows:
+                        print(f"+++(((((()))))){row}")
+                        user_id=row[2]
+                        bucket_name=row[5]
+                        key=row[6]
+                        preassigned_url = s3_client.generate_presigned_url(
+                            ClientMethod = 'get_object',
+                            Params = {
+                                'Bucket':bucket_name,
+                                'Key': key+".pdf"},
+                            ExpiresIn = 360)
+                        gallery_files.append(preassigned_url)
+                print(f"----------------{gallery_files}")
+                connection_cursor.close()
+                connection.close()
+                pdf_files=[file for file in rows if file[1].lower().endswith(('pdf','txt'))]
+                print(f"-----*******{pdf_files}")
+            return render_template('text_to_pdf.html', pdf_files=gallery_files,rows=rows)
+        elif request.method == 'POST':
+            print(request.files)
+            message=""
+            errorType = 1
+            if 'user_id' in session and 'text_file' in request.files:
+                text_file=request.files['text_file']
+                print(f"===={text_file}")
+                connection = db_connection()
+                connection_cursor = connection.cursor()
+                rmq_conn = rabbitdq_connection()
+                rmq_channel = rmq_conn.channel()
+                rmq_channel.queue_declare(queue="text_to_pdf_queue", durable=True)
+                for text_file in request.files.getlist('text_file'):
+                    if allowed_file(text_file.filename):
+                        user_id=session['user_id']
+                        filename = secure_filename(text_file.filename)
+                        print(filename)
+                        key=f"uploads/{user_id}/pdf/{filename}"
+                        timestamp = datetime.datetime.now()
+                        status="queued"
+                        id=uuid.uuid1()
+                        bucket_name = "s3-flask-demo"
+                        s3_client.upload_fileobj(
+                            text_file,
+                            bucket_name,
+                            f"uploads/{user_id}/pdf/{filename}"
+                        )
+                        query=f"INSERT INTO txt_pdf (job_id,job_name,user_id,time_stamp,job_status,bucket_name,`key`) VALUES ('{id}', '{filename}','{user_id}','{timestamp}','{status}','{bucket_name}','{key}');"
+                        connection_cursor.execute(query)
+                        connection.commit()
+                        payload={
+                            "job_id": str(id),
+                            "job_name": filename,
+                            "user_id": user_id,
+                            "time_stamp": str(timestamp),
+                            "bucket_name":bucket_name,
+                            "key":f"uploads/{user_id}/pdf/{filename}"
+                        }
+                        print(payload)
+                        rmq_channel.basic_publish(body=str(payload), exchange="", routing_key="text_to_pdf_queue")
+                message = 'File downloaded successfully'
+                errorType = 1
+                connection_cursor.close()
+                connection.close()
+                rmq_channel.close()
+                rmq_conn.close()
+            return render_template('text_to_pdf.html',message=message,errorType = errorType)
+
+@app.route('/delete_pdf/<int:user_id>/<job_id>', methods=['POST'])
+
+def delete_pdf(user_id,job_id):
+    session_user_id = session.get('user_id')
+    if session_user_id is not None and str(session_user_id) == str(user_id):
+            connection = db_connection()
+            connection_cursor = connection.cursor()
+            query2 = f"DELETE FROM login_flask_queue2 WHERE user_id='{user_id}' AND job_id='{job_id}';"
+            print("--------------")
+            connection_cursor.execute(query2)
+            connection.commit()
+            connection_cursor.close()
+            connection.close()
+            return redirect (url_for('text_to_pdf'))
+    else:
+            return "Forbidden", 403
 
 if __name__=="__main__":
 	app.run(debug= True)
