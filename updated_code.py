@@ -600,8 +600,8 @@ def text_to_pdf():
                         timestamp = datetime.datetime.now()
                         status="queued"
                         id=uuid.uuid1()
-                        bucket_name = "s3-flask-demo"
-                        s3_client.upload_fileobj(
+                        bucket_name = "flaskurl"
+                        s3.upload_fileobj(
                             text_file,
                             bucket_name,
                             f"uploads/{user_id}/pdf/{filename}"
