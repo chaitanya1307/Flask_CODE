@@ -24,7 +24,7 @@
       </div>
       {% for row in rows %}
       <div class="w3-container">
-         <form method="POST" action="/delete_pdf/{{row[2]}}/{{row[0]}}" style="display: inline;">
+         <form method="POST" action="/delete_pdf/{{row['user_id']}}/{{row['job_id']}}" style="display: inline;">
             <button type="submit" style="font-size:24px"><i class="fa fa-trash-o"></i></button>
          </form>
          {% endfor %}

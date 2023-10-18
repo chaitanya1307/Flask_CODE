@@ -563,10 +563,10 @@ def text_to_pdf():
                 if rows is not None:
                     for row in rows:
                         print(f"+++(((((()))))){row}")
-                        user_id=row[2]
-                        bucket_name=row[5]
-                        key=row[6]
-                        preassigned_url = s3_client.generate_presigned_url(
+                        user_id=row['user_id']
+                        bucket_name=row['bucket_name']
+                        key=row['key']
+                        preassigned_url = s3.generate_presigned_url(
                             ClientMethod = 'get_object',
                             Params = {
                                 'Bucket':bucket_name,
@@ -576,8 +576,8 @@ def text_to_pdf():
                 print(f"----------------{gallery_files}")
                 connection_cursor.close()
                 connection.close()
-                pdf_files=[file for file in rows if file[1].lower().endswith(('pdf','txt'))]
-                print(f"-----*******{pdf_files}")
+                # pdf_files=[file for file in rows if file[1].lower().endswith(('pdf','txt'))]
+                # print(f"-----*******{pdf_files}")
             return render_template('text_to_pdf.html', pdf_files=gallery_files,rows=rows)
         elif request.method == 'POST':
             print(request.files)
@@ -630,19 +630,27 @@ def text_to_pdf():
 @app.route('/delete_pdf/<int:user_id>/<job_id>', methods=['POST'])
 
 def delete_pdf(user_id,job_id):
-    session_user_id = session.get('user_id')
-    if session_user_id is not None and str(session_user_id) == str(user_id):
-            connection = db_connection()
-            connection_cursor = connection.cursor()
-            query2 = f"DELETE FROM login_flask_queue2 WHERE user_id='{user_id}' AND job_id='{job_id}';"
-            print("--------------")
-            connection_cursor.execute(query2)
-            connection.commit()
-            connection_cursor.close()
-            connection.close()
-            return redirect (url_for('text_to_pdf'))
-    else:
-            return "Forbidden", 403
+		session_user_id = session.get('user_id')
+		if session_user_id is not None and str(session_user_id) == str(user_id):
+				connection = db_connection()
+				connection_cursor = connection.cursor()
+				query = f" SELECT  * from txt_pdf WHERE user_id='{user_id}' AND job_id = '{job_id}';"
+				connection_cursor.execute(query)
+				del_pdf = connection_cursor.fetchall()
+				print("-------------------------",del_pdf)
+
+				print(del_pdf[0]['key'])
+				query2 = f"DELETE FROM txt_pdf WHERE user_id='{user_id}' AND job_id='{job_id}';"
+				print("--------------")
+				connection_cursor.execute(query2)
+				connection.commit()
+				connection_cursor.close()
+				connection.close()
+				s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY, region_name=S3_REGION)			
+				response = s3.delete_object(Bucket=S3_BUCKET_NAME,Key=del_pdf[0]['key'],)
+				return redirect (url_for('text_to_pdf'))
+		else:
+				return "Forbidden", 403
 
 if __name__=="__main__":
 	app.run(debug= True)

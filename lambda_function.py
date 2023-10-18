@@ -37,9 +37,9 @@ def lambda_handler(event, context):
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=15)
-        with open(pdf_path, "r") as text_file:
-            for line in text_file:
-                pdf.cell(200, 10, txt=line, ln=1, align="C")
+        for line in binary_file:
+                    text_line = line.decode('utf-8')
+                    pdf.cell(200, 10, txt=text_line, ln=1, align="C")
         pdf.output(pdf_path)
         query = f"INSERT INTO login_flask_upload2 (user_id, filename) VALUES ('{user_id}','{filename}.pdf');"
         connection_cursor.execute(query)
