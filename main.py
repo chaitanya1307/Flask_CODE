@@ -77,7 +77,6 @@ def login():
 		if user is not None:
 			if user['username']==username and user['passwrd']==password:
 				session['user_id'] = user['personid']
-				print("--------------------")
 				print(session['user_id'])
 				return redirect(url_for('profile'))
 			
