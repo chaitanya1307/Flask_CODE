@@ -72,7 +72,6 @@ def login():
 		connection_cursor = connection.cursor()
 		connection_cursor.execute(query)
 		user = connection_cursor.fetchone()
-		print("===================================================")
 		print(user)
 		if user is not None:
 			if user['username']==username and user['passwrd']==password:
